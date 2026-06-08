@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>英単語Master 完全版</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(135deg,#eef5ff,#f8fbff);font-family:'Zen Maru Gothic',sans-serif;text-align:center}
+.screen{display:none;padding:20px}.active{display:block}
+.card{max-width:850px;margin:auto;background:rgba(255,255,255,.95);border-radius:28px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.15)}
+.top{display:flex;justify-content:center;align-items:center;gap:20px}
+#icon{width:120px;height:120px;border-radius:50%;border:3px solid #333;object-fit:cover;background:#fff}
+.rankNum{font-size:64px;font-weight:900}
+.bar{height:22px;background:#ddd;border-radius:999px;overflow:hidden}
+.fill{height:100%;width:0;transition:.4s}
+#rateBar{background:linear-gradient(90deg,#005bbb,#2f86ff)}
+#xpBar{background:linear-gradient(90deg,#00c853,#4cff9f)}
+button{border:none;border-radius:18px;padding:12px 22px;font-size:20px;font-weight:900;color:#fff;background:#2f86ff;margin:6px;cursor:pointer}
+input,textarea{padding:10px;border-radius:12px;border:1px solid #ccc;width:80%}
+.menu{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.tile{padding:20px;border-radius:18px;color:#fff;font-weight:900;cursor:pointer}
+.a{background:#2f86ff}.b{background:#14a44d}.c{background:#ff9800}
+</style>
+</head>
+<body>
+
+<div id="profile" class="screen active">
+<div class="card">
+<h1>英単語Master</h1>
+<div class="top">
+<img id="icon">
+<div>
+<div id="userName">Player</div>
+<div class="rankNum" id="rankNum">1</div>
+</div>
+</div>
+
+<h3>レート : <span id="rateView">0</span></h3>
+<div class="bar"><div id="rateBar" class="fill"></div></div>
+<div id="rateCycleText">0 / 50</div>
+
+<h3>XP</h3>
+<div id="xpText">0 / 10</div>
+<div class="bar"><div id="xpBar" class="fill"></div></div>
+
+<p>称号 : <span id="titleView">見習い学習者</span></p>
+<p>ランクレート : <span id="rankRate">Beginner</span></p>
+
+<button onclick="showScreen('settings')">設定</button>
+<button onclick="showScreen('mode')">ゲームへ</button>
+</div>
+</div>
+
+<div id="settings" class="screen">
+<div class="card">
+<h2>設定</h2>
+<input id="nameInput" placeholder="ユーザー名"><br><br>
+<input type="file" id="iconUpload"><br><br>
+<label><input type="checkbox" id="soundToggle"> 効果音ON/OFF</label><br><br>
+<textarea id="authorType" placeholder="作者説明"></textarea><br><br>
+<button onclick="saveSettings()">保存</button>
+<button onclick="showScreen('profile')">戻る</button>
+</div>
+</div>
+
+<div id="mode" class="screen">
+<div class="card">
+<h2>モード選択</h2>
+<div class="menu">
+<div class="tile a" onclick="startGame('jp-en')">日→英</div>
+<div class="tile b" onclick="startGame('en-jp')">英→日</div>
+<div class="tile c" onclick="startGame('rank')">ランク</div>
+</div>
+<button onclick="showScreen('profile')">戻る</button>
+</div>
+</div>
+
+<div id="game" class="screen">
+<div class="card">
+<h2 id="question"></h2>
+<input id="answer"><br><br>
+<button onclick="checkAnswer()">回答</button>
+<button onclick="skipQuestion()">スキップ</button>
+<p id="msg"></p>
+<p><span id="countView">1</span>/10</p>
+</div>
+</div>
+
+<div id="result" class="screen">
+<div class="card">
+<h2>結果</h2>
+<div id="resultText"></div>
+<div id="profileButton"></div>
+</div>
+</div>
+
+<script>
+const words=[
+{jp:"りんご",en:"apple"},{jp:"ねこ",en:"cat"},{jp:"いぬ",en:"dog"},
+{jp:"学校",en:"school"},{jp:"本",en:"book"},{jp:"車",en:"car"},
+{jp:"水",en:"water"},{jp:"先生",en:"teacher"},{jp:"友達",en:"friend"}
+];
+
+let rate=+localStorage.getItem("rate")||0;
+let xp=+localStorage.getItem("xp")||0;
+let locked=false,lastWord=null,current=null;
+let q=0,correct=0,pendingRate=0,mode="jp-en";
+
+function showScreen(id){
+document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+}
+
+function rankNeed(l){if(l==1)return 10;if(l==2)return 15;if(l==3)return 25;return Math.floor(10+l*l*1.5)}
+function getRank(){let lv=1,t=xp;while(t>=rankNeed(lv)){t-=rankNeed(lv);lv++}return lv}
+
+function updateProfile(){
+userName.textContent=localStorage.getItem("username")||"Player";
+nameInput.value=userName.textContent;
+rankNum.textContent=getRank();
+
+rateView.textContent=rate;
+rateBar.style.width=((rate%50)/50*100)+"%";
+rateCycleText.textContent=(rate%50)+" / 50";
+
+let lv=getRank(),used=0;
+for(let i=1;i<lv;i++)used+=rankNeed(i);
+let cur=xp-used,next=rankNeed(lv);
+
+xpText.textContent=cur+" / "+next;
+xpBar.style.width=(cur/next*100)+"%";
+
+if(localStorage.getItem("icon")) icon.src=localStorage.getItem("icon");
+authorType.value=localStorage.getItem("authorType")||"";
+soundToggle.checked=localStorage.getItem("sound")!=="off";
+}
+
+function saveSettings(){
+localStorage.setItem("username",nameInput.value||"Player");
+localStorage.setItem("authorType",authorType.value);
+localStorage.setItem("sound",soundToggle.checked?"on":"off");
+updateProfile();
+showScreen("profile");
+}
+
+iconUpload.addEventListener("change",e=>{
+const f=e.target.files[0]; if(!f)return;
+const r=new FileReader();
+r.onload=x=>{localStorage.setItem("icon",x.target.result);icon.src=x.target.result;};
+r.readAsDataURL(f);
+});
+
+function startGame(m){
+mode=m;q=0;correct=0;pendingRate=0;
+showScreen("game");
+nextQuestion();
+}
+
+function nextQuestion(){
+locked=false;
+if(q>=10)return finishGame();
+
+do{
+current=words[Math.floor(Math.random()*words.length)];
+}while(current===lastWord);
+lastWord=current;
+
+question.textContent=mode==="en-jp"?current.en:current.jp;
+answer.value="";
+msg.textContent="";
+countView.textContent=q+1;
+}
+
+function checkAnswer(){
+if(locked)return;
+locked=true;
+
+const ans=mode==="en-jp"?current.jp:current.en;
+q++;
+
+if(answer.value.trim().toLowerCase()===ans.toLowerCase()){
+correct++; pendingRate+=10; msg.textContent="⭕ 正解";
+}else{
+pendingRate-=5; msg.textContent="❌ 正解: "+ans;
+}
+setTimeout(nextQuestion,400);
+}
+
+function skipQuestion(){
+if(locked)return;
+locked=true;
+q++; pendingRate-=5;
+msg.textContent="スキップ";
+setTimeout(nextQuestion,400);
+}
+
+function wait(ms){return new Promise(r=>setTimeout(r,ms));}
+
+async function finishGame(){
+rate=Math.max(0,rate+pendingRate);
+xp+=correct*10;
+localStorage.setItem("rate",rate);
+localStorage.setItem("xp",xp);
+
+showScreen("result");
+resultText.innerHTML="";
+profileButton.innerHTML="";
+
+await wait(200);
+resultText.innerHTML="正解数 : "+correct+"/10";
+
+await wait(200);
+resultText.innerHTML+="<br>レート変動 : "+(pendingRate>=0?"+":"")+pendingRate;
+
+await wait(200);
+resultText.innerHTML+="<br>現在レート : "+rate;
+
+await wait(700);
+profileButton.innerHTML='<button onclick="backProfile()">プロフィールへ</button>';
+}
+
+function backProfile(){updateProfile();showScreen("profile");}
+
+document.addEventListener("keydown",e=>{
+if(e.key==="Enter" && document.getElementById("game").classList.contains("active")) checkAnswer();
+});
+
+updateProfile();
+</script>
+</body>
+</html>
