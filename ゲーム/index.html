@@ -99,25 +99,47 @@ input,textarea{padding:10px;border-radius:12px;border:1px solid #ccc;width:80%}
 
 <script>
 const rankData={
-  1:{xp:10,rateWin:10,rateLose:5},
-  2:{xp:20,rateWin:15,rateLose:8},
-  3:{xp:35,rateWin:25,rateLose:12},
-  4:{xp:50,rateWin:40,rateLose:20},
-  5:{xp:80,rateWin:60,rateLose:30}
+  1:{xp:5,rateWin:1,rateLose:5},
+  2:{xp:7,rateWin:1,rateLose:4},
+  3:{xp:9,rateWin:1,rateLose:3},
+  4:{xp:11,rateWin:2,rateLose:3},
+  5:{xp:13,rateWin:2,rateLose:2}
+  6:{xp:15,rateWin:3,rateLose:2},
+  7:{xp:17,rateWin:3,rateLose:2},
+  8:{xp:19,rateWin:3,rateLose:1},
+  9:{xp:21,rateWin:4,rateLose:1},
+  10:{xp:23,rateWin:4,rateLose:0},
 };
   const words=[
 {jp:"りんご",en:"apple",rank:1},
 {jp:"ねこ",en:"cat",rank:1},
 {jp:"いぬ",en:"dog",rank:1},
+{jp:"バナナ",en:"banana",rank:1},
+{jp:"本",en:"book",rank:1},
+{jp:"箱",en:"box",rank:1},
+{jp:"星",en:"star",rank:1},
+{jp:"あお",en:"blue",rank:1},
+{jp:"あか",en:"red",rank:1},
+{jp:"そら",en:"sky",rank:1},
 
 {jp:"学校",en:"school",rank:2},
-{jp:"本",en:"book",rank:2},
-{jp:"車",en:"car",rank:2},
+{jp:"時間",en:"time",rank:2},
+{jp:"ベッド",en:"bed",rank:2},
+{jp:"みどり",en:"green",rank:2},
+{jp:"花",en:"flower",rank:2},
+{jp:"数学",en:"math",rank:2},
+{jp:"英語",en:"english",rank:2},
+{jp:"金曜日",en:"friday",rank:2},
+{jp:"日曜日",en:"sunday",rank:2},
+{jp:"月曜日",en:"monday",rank:2},
 
-{jp:"水",en:"water",rank:3},
+{jp:"火曜日",en:"tuesday",rank:3},
 {jp:"友達",en:"friend",rank:3},
+{jp:"土曜日",en:"saturday",rank:3},
 
 {jp:"先生",en:"teacher",rank:4}
+{jp:"水曜日",en:"wednesday",rank:4}
+{jp:"木曜日",en:"thursday",rank:4}
 ];
 
 let rate=+localStorage.getItem("rate")||1500;
