@@ -98,10 +98,26 @@ input,textarea{padding:10px;border-radius:12px;border:1px solid #ccc;width:80%}
 </div>
 
 <script>
-const words=[
-{jp:"りんご",en:"apple"},{jp:"ねこ",en:"cat"},{jp:"いぬ",en:"dog"},
-{jp:"学校",en:"school"},{jp:"本",en:"book"},{jp:"車",en:"car"},
-{jp:"水",en:"water"},{jp:"先生",en:"teacher"},{jp:"友達",en:"friend"}
+const rankData={
+  1:{xp:10,rateWin:10,rateLose:5},
+  2:{xp:20,rateWin:15,rateLose:8},
+  3:{xp:35,rateWin:25,rateLose:12},
+  4:{xp:50,rateWin:40,rateLose:20},
+  5:{xp:80,rateWin:60,rateLose:30}
+};
+  const words=[
+{jp:"りんご",en:"apple",rank:1},
+{jp:"ねこ",en:"cat",rank:1},
+{jp:"いぬ",en:"dog",rank:1},
+
+{jp:"学校",en:"school",rank:2},
+{jp:"本",en:"book",rank:2},
+{jp:"車",en:"car",rank:2},
+
+{jp:"水",en:"water",rank:3},
+{jp:"友達",en:"friend",rank:3},
+
+{jp:"先生",en:"teacher",rank:4}
 ];
 
 let rate=+localStorage.getItem("rate")||1500;
@@ -181,7 +197,9 @@ locked=true;
 const ans=mode==="en-jp"?current.jp:current.en;
 q++;
 
-if(answer.value.trim().toLowerCase()===ans.toLowerCase()){
+const data=rankData[current.rank];
+  
+  if(answer.value.trim().toLowerCase()===ans.toLowerCase()){
 correct++; pendingRate+=10; msg.textContent="⭕ 正解";
 }else{
 pendingRate-=5; msg.textContent="❌ 正解: "+ans;
