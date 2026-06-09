@@ -1,12 +1,80 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="google-site-verification" content="VmoHGkew9YixJCY6_gTrhPTekj4eKYKDvZ9lK_Ax06o" />
-<title>英単語Master 完全版</title>
+<title>英単語Master</title>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
+#rankRateBar{
+  background:linear-gradient(90deg,#ff9800,#ffd54f);
+}
+h1{
+  font-family:'Orbitron',sans-serif;
+  font-size:48px;
+  font-weight:900;
+  text-shadow:
+    4px 4px 4px rgba(100,100,100,0.35);
+
+}
+h1{
+  position:relative;
+  display:inline-block;
+
+  font-family:'Orbitron',sans-serif;
+  font-size:48px;
+  font-weight:900;
+
+  text-shadow:
+    4px 4px 4px rgba(100,100,100,0.35);
+}
+
+h1::after{
+  content:"";
+  position:absolute;
+  top:-20%;
+  left:-50%;
+
+  width:40%;
+  height:140%;
+
+  background:linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.8),
+    transparent
+  );
+
+  transform:skewX(-25deg);
+
+  animation:shine 4s infinite;
+}
+
+@keyframes shine{
+
+  0%{
+    left:-60%;
+    opacity:0;
+  }
+
+  5%{
+    opacity:1;
+  }
+
+  40%{
+    left:120%;
+    opacity:0;
+  }
+
+  100%{
+    left:120%;
+    opacity:0;
+  }
+
+}
+
 *{box-sizing:border-box}
 body{margin:0;background:linear-gradient(135deg,#eef5ff,#f8fbff);font-family:'Zen Maru Gothic',sans-serif;text-align:center}
 .screen{display:none;padding:20px}.active{display:block}
@@ -14,6 +82,14 @@ body{margin:0;background:linear-gradient(135deg,#eef5ff,#f8fbff);font-family:'Ze
 .top{display:flex;justify-content:center;align-items:center;gap:20px}
 #icon{width:120px;height:120px;border-radius:50%;border:3px solid #333;object-fit:cover;background:#fff}
 .rankNum{font-size:64px;font-weight:900}
+#userName{
+  font-size:40px;
+  font-weight:900;
+  margin-bottom:2px;
+  text-shadow:
+    2px 2px 4px rgba(100,100,100,0.35);
+  font-family:'Yu Gothic','Meiryo',sans-serif;
+}
 .bar{height:22px;background:#ddd;border-radius:999px;overflow:hidden}
 .fill{height:100%;width:0;transition:.4s}
 #rateBar{background:linear-gradient(90deg,#005bbb,#2f86ff)}
@@ -23,31 +99,173 @@ input,textarea{padding:10px;border-radius:12px;border:1px solid #ccc;width:80%}
 .menu{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 .tile{padding:20px;border-radius:18px;color:#fff;font-weight:900;cursor:pointer}
 .a{background:#2f86ff}.b{background:#14a44d}.c{background:#ff9800}
+#bgWords{
+  position:fixed;
+  inset:0;
+  overflow:hidden;
+  pointer-events:none;
+  z-index:0;
+}
+
+.bgWord{
+  position:absolute;
+  white-space:nowrap;
+  font-weight:900;
+  color:rgba(47,134,255,0.12);
+  animation:flow linear forwards;
+}
+
+@keyframes flow{
+  from{
+    transform:translateX(0);
+  }
+  to{
+    transform:translateX(-150vw);
+  }
+}
+
+.card{
+  position:relative;
+  z-index:1;
+}
+.userInfo{
+  text-align:left;
+}
+
+.rankNum{
+  font-size:64px;
+  font-weight:900;
+  line-height:1;
+}
+
+.miniXp{
+  width:120px;
+  margin-top:6px;
+}
+
+.miniXpBar{
+  height:10px;
+  background:#ddd;
+  border-radius:999px;
+  overflow:hidden;
+}
+
+.miniXpFill{
+  height:100%;
+  width:0;
+  background:linear-gradient(90deg,#00c853,#4cff9f);
+}
+
+.miniXpText{
+  font-size:12px;
+  font-weight:700;
+}
+.rankArea{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.miniXp{
+  width:120px;
+margin-top:40px;
+
+}
+
+.miniXpBar{
+  height:10px;
+  background:#ddd;
+  border-radius:999px;
+  overflow:hidden;
+}
+
+.miniXpFill{
+  height:100%;
+  width:0;
+  background:linear-gradient(90deg,#00c853,#4cff9f);
+}
+
+.miniXpText{
+  font-size:12px;
+  font-weight:700;
+}
+.xpLabel{
+  font-size:10px;
+  font-weight:1000;
+  color:#666;
+  margin-bottom:3px;
+}
+.rankGrid{
+  display:grid;
+  gap:3px;
+  margin:10px 0;
+}
+
+.rankCell{
+  height:18px;
+  background:#ddd;
+  border-radius:4px;
+}
+
+.rankCell.on{
+  background:linear-gradient(90deg,#ff9800,#ffd54f);
+}
+
 </style>
 </head>
 <body>
+<audio id="correctSe">
+  <source src="col.mp3" type="audio/mpeg">
+</audio>
 
+<audio id="wrongSe">
+  <source src="def.mp3" type="audio/mpeg">
+</audio>
+<audio id="questionBgm" loop>
+  <source src="que.mp3" type="audio/mpeg">
+</audio>
+
+<div id="bgWords"></div>
 <div id="profile" class="screen active">
 <div class="card">
 <h1>英単語Master</h1>
 <div class="top">
-<img id="icon">
-<div>
+  <img id="icon">
+
+  <div class="userInfo">
 <div id="userName">Player</div>
-<div class="rankNum" id="rankNum">1</div>
+
+<div class="rankArea">
+
+  <div class="rankNum" id="rankNum">1</div>
+
+  <div class="miniXp">
+    <div class="xpLabel">ユーザーランク</div>
+    <div class="miniXpBar">
+      <div id="xpBar" class="miniXpFill"></div>
+    </div>
+    <div id="xpText" class="miniXpText">0 / 10</div>
+  </div>
+
 </div>
+  </div>
 </div>
 
 <h3>レート : <span id="rateView">0</span></h3>
 <div class="bar"><div id="rateBar" class="fill"></div></div>
 <div id="rateCycleText">0 / 50</div>
 
-<h3>XP</h3>
-<div id="xpText">0 / 10</div>
-<div class="bar"><div id="xpBar" class="fill"></div></div>
+
 
 <p>称号 : <span id="titleView">見習い学習者</span></p>
-<p>ランクレート : <span id="rankRate">Beginner</span></p>
+<p>
+  ランクレート :
+  <span id="rankRate">ビギナー (0)</span>
+</p>
+
+<div id="rankRateGrid" class="rankGrid"></div>
+
+<div id="rankRateText">0 / 10</div>
 
 <button onclick="showScreen('settings')">設定</button>
 <button onclick="showScreen('mode')">ゲームへ</button>
@@ -82,7 +300,7 @@ input,textarea{padding:10px;border-radius:12px;border:1px solid #ccc;width:80%}
 <h2 id="question"></h2>
 <input id="answer"><br><br>
 <button onclick="checkAnswer()">回答</button>
-<button onclick="skipQuestion()">スキップ</button>
+<button onclick="skipQuestion()">わからない</button>
 <p id="msg"></p>
 <p><span id="countView">1</span>/10</p>
 </div>
@@ -456,8 +674,21 @@ function pickWordByRateLimit(){
 }
 
 function showScreen(id){
-document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));
-document.getElementById(id).classList.add("active");
+
+  const homeBgm =
+    document.getElementById("homeBgm");
+
+  document
+    .querySelectorAll(".screen")
+    .forEach(x=>x.classList.remove("active"));
+
+  document
+    .getElementById(id)
+    .classList.add("active");
+
+  if(id==="profile"){
+    homeBgm.play().catch(()=>{});
+  }
 }
 
 function rankNeed(l){if(l==1)return 10;if(l==2)return 15;if(l==3)return 25;return Math.floor(10+l*l*1.5)}
@@ -480,7 +711,51 @@ xpText.textContent=cur+" / "+next;
 xpBar.style.width=(cur/next*100)+"%";
 
 const r=getRankRank();
-rankRate.textContent=rankRanks[r].name+" ("+rankRate+")";
+const rankRateElement =
+  document.getElementById("rankRate");
+
+rankRateElement.textContent =
+  rankRanks[r].name + " (" + rankRate + ")";
+const nextRankMin =
+  rankRanks[r+1]
+    ? rankRanks[r+1].min
+    : rankRanks[r].min + 50;
+
+const currentMin =
+  rankRanks[r].min;
+
+const progress =
+  rankRate - currentMin;
+
+const need =
+  nextRankMin - currentMin;
+document.getElementById("rankRateText").textContent =
+  progress + " / " + need;
+
+const cells = 20;
+
+const filled =
+  Math.floor(progress / need * cells);
+
+const grid =
+  document.getElementById("rankRateGrid");
+
+grid.innerHTML = "";
+
+grid.style.gridTemplateColumns =
+  `repeat(${cells}, 1fr)`;
+
+for(let i=0;i<cells;i++){
+
+  const cell = document.createElement("div");
+  cell.className = "rankCell";
+
+  if(i < filled){
+    cell.classList.add("on");
+  }
+
+  grid.appendChild(cell);
+}
 
 if(localStorage.getItem("icon")) icon.src=localStorage.getItem("icon");
 authorType.value=localStorage.getItem("authorType")||"";
@@ -492,6 +767,9 @@ localStorage.setItem("username",nameInput.value||"Player");
 localStorage.setItem("authorType",authorType.value);
 localStorage.setItem("sound",soundToggle.checked?"on":"off");
 updateProfile();
+document.addEventListener("click", () => {
+  homeBgm.play().catch(()=>{});
+}, { once:true });
 showScreen("profile");
 }
 
@@ -503,28 +781,67 @@ r.readAsDataURL(f);
 });
 
 function startGame(m){
-mode=m;q=0;correct=0;pendingRate=0;
-showScreen("game");
-nextQuestion();
+
+  homeBgm.pause();
+  homeBgm.currentTime = 0;
+
+  const questionBgm =
+    document.getElementById("questionBgm");
+
+  if(questionBgm){
+    questionBgm.currentTime = 0;
+    questionBgm.play().catch(()=>{});
+  }
+
+  mode=m;
+  q=0;
+  correct=0;
+  pendingRate=0;
+
+  showScreen("game");
+  nextQuestion();
 }
 
 function nextQuestion(){
 locked=false;
 if(q>=10)return finishGame();
-
+console.log("rankRate =", rankRate);
 if(mode==="rank"){
-  const rr=getRankRank();
-  let targetRank=1;
-  if(rr<=1)targetRank=1;
-  else if(rr===2)targetRank=2;
-  else if(rr===3)targetRank=3;
-  else if(rr===4)targetRank=4;
-  else if(rr===5)targetRank=5;
-  else if(rr===6)targetRank=6;
-  else targetRank=Math.floor(Math.random()*4)+7;
 
-  const pool=words.filter(w=>w.rank===targetRank);
-  current=pool[Math.floor(Math.random()*pool.length)];
+  const rr = getRankRank();
+
+  let ranks = [];
+
+  if(rr===0){          // ビギナー
+    ranks=[1];
+  }
+  else if(rr===1){     // ブロンズ
+    ranks=[2];
+  }
+  else if(rr===2){     // シルバー
+    ranks=[3];
+  }
+  else if(rr===3){     // ゴールド
+    ranks=[4];
+  }
+  else if(rr===4){     // プラチナ
+    ranks=[5];
+  }
+  else if(rr===5){     // レジェンド
+    ranks=[6,7];
+  }
+  else{                // マスター・イモータル
+    ranks=[8,9,10];
+  }
+
+  const targetRank =
+    ranks[Math.floor(Math.random()*ranks.length)];
+
+  const pool =
+    words.filter(w=>w.rank===targetRank);
+
+  current =
+    pool[Math.floor(Math.random()*pool.length)];
 }else{
   current = pickWordByRateLimit();
 }
@@ -546,14 +863,28 @@ function checkAnswer(){
   const band = getCurrentBand();
 const rateSet = band.ranks[current.rank];
 
-  if(ok){
-    correct++;
+if(ok){
+  document.getElementById("correctSe").currentTime = 0;
+  document.getElementById("correctSe").play();
+
+  correct++;
+
+  if(mode==="rank"){
+    rankRate++;
+console.log("正解後 rankRate =", rankRate);
+  }else{
     pendingRate += rateSet.correct;
-    if(mode === "rank") rankRate++;
+  }
     msg.textContent = "⭕ 正解 (+" + rateSet.correct + ")";
+}else{
+  document.getElementById("wrongSe").currentTime = 0;
+  document.getElementById("wrongSe").play();
+
+  if(mode==="rank"){
+    rankRate = Math.max(0, rankRate - 1);
   }else{
     pendingRate -= rateSet.miss;
-    if(mode === "rank") rankRate = Math.max(0, rankRate - 1);
+  }
     msg.textContent = "❌ 正解: " + current.en + " (-" + rateSet.miss + ")";
   }
 
@@ -563,37 +894,120 @@ const rateSet = band.ranks[current.rank];
 function skipQuestion(){
   if(locked) return;
   locked = true;
+  document.getElementById("wrongSe").currentTime = 0;
+  document.getElementById("wrongSe").play();
   q++;
 
 const band = getCurrentBand();
 const rateSet = band.ranks[current.rank];
 
+if(mode==="rank"){
+  rankRate = Math.max(0, rankRate - 1);
+  msg.textContent = "スキップ (ランクレート -1)";
+}else{
   pendingRate -= rateSet.miss;
-  if(mode === "rank") rankRate = Math.max(0, rankRate - 1);
   msg.textContent = "スキップ (-" + rateSet.miss + ")";
+}
 
   setTimeout(nextQuestion, 400);
 }
 
 async function finishGame(){
-rate=Math.max(0,rate+pendingRate);
-xp+=correct*10;
-localStorage.setItem("rate",rate);
-localStorage.setItem("xp",xp);
-localStorage.setItem("rankRate",rankRate);
+const questionBgm =
+  document.getElementById("questionBgm");
+
+if(questionBgm){
+  questionBgm.pause();
+  questionBgm.currentTime = 0;
+}
+
+  if(mode!=="rank"){
+    rate=Math.max(0,rate+pendingRate);
+    localStorage.setItem("rate",rate);
+  }
+
+  xp+=correct*10;
+
+  localStorage.setItem("xp",xp);
+  localStorage.setItem("rankRate",rankRate);
 
 showScreen("result");
-resultText.innerHTML="正解数 : "+correct+"/10<br>レート変動 : "+pendingRate+"<br>現在レート : "+rate;
+if(mode==="rank"){
+
+  resultText.innerHTML =
+    "正解数 : " + correct + "/10<br>" +
+    "ランクレート : " + rankRate + "<br>" +
+    "ランク : " + rankRanks[getRankRank()].name;
+
+}else{
+
+  resultText.innerHTML =
+    "正解数 : " + correct + "/10<br>" +
+    "レート変動 : " + pendingRate + "<br>" +
+    "現在レート : " + rate;
+
+}
 profileButton.innerHTML='<button onclick="backProfile()">プロフィールへ</button>';
 }
 
 function backProfile(){updateProfile();showScreen("profile");}
 
+
 document.addEventListener("keydown",e=>{
 if(e.key==="Enter" && document.getElementById("game").classList.contains("active")) checkAnswer();
 });
+const bgWordList = [
+"apple","school","friend","teacher","book",
+"environment","culture","democracy",
+"economy","philosophy","knowledge",
+"study","education","lesson","quiz",
+"science","history","english","math",
+"future","success","language","master"
+];
+
+function spawnWord(){
+
+  const word = document.createElement("div");
+  word.className = "bgWord";
+
+  word.textContent =
+    bgWordList[Math.floor(Math.random()*bgWordList.length)];
+
+  word.style.top = Math.random()*90 + "%";
+
+  word.style.fontSize =
+    (30 + Math.random()*50) + "px";
+
+  word.style.left = "110vw";
+
+  word.style.animationDuration =
+    (15 + Math.random()*20) + "s";
+
+  document.getElementById("bgWords").appendChild(word);
+
+  word.addEventListener("animationend",()=>{
+    word.remove();
+  });
+}
+
+setInterval(spawnWord,1000);
 
 updateProfile();
+
+homeBgm.play().catch(()=>{});
 </script>
+
+<audio id="homeBgm" loop>
+  <source src="home.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="correctSe">
+  <source src="col.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="wrongSe">
+  <source src="def.mp3" type="audio/mpeg">
+</audio>
+
 </body>
 </html>
