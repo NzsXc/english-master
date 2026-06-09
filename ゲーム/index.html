@@ -71,7 +71,6 @@ input,textarea{padding:10px;border-radius:12px;border:1px solid #ccc;width:80%}
 <h2>モード選択</h2>
 <div class="menu">
 <div class="tile a" onclick="startGame('jp-en')">日→英</div>
-<div class="tile b" onclick="startGame('en-jp')">英→日</div>
 <div class="tile c" onclick="startGame('rank')">ランク</div>
 </div>
 <button onclick="showScreen('profile')">戻る</button>
@@ -98,19 +97,34 @@ input,textarea{padding:10px;border-radius:12px;border:1px solid #ccc;width:80%}
 </div>
 
 <script>
-const rankData={
-  1:{xp:5,rateWin:1,rateLose:5},
-  2:{xp:7,rateWin:1,rateLose:4},
-  3:{xp:9,rateWin:1,rateLose:3},
-  4:{xp:11,rateWin:2,rateLose:3},
-  5:{xp:13,rateWin:2,rateLose:2}
-  6:{xp:15,rateWin:3,rateLose:2},
-  7:{xp:17,rateWin:3,rateLose:2},
-  8:{xp:19,rateWin:3,rateLose:1},
-  9:{xp:21,rateWin:4,rateLose:1},
-  10:{xp:23,rateWin:4,rateLose:0},
-};
-  const words=[
+/* ===== 追加① ランクレート ===== */
+let rankRate = +localStorage.getItem("rankRate") || 0;
+
+/* ===== 追加② ランク定義 ===== */
+const rankRanks = [
+  {name:"ビギナー",min:0},
+  {name:"ブロンズ",min:10},
+  {name:"シルバー",min:30},
+  {name:"ゴールド",min:60},
+  {name:"プラチナ",min:100},
+  {name:"レジェンド",min:150},
+  {name:"マスター",min:200},
+  {name:"イモータル",min:250},
+];
+function getRankRank(){
+  for(let i=rankRanks.length-1;i>=0;i--){
+    if(rankRate>=rankRanks[i].min) return i;
+  }
+  return 0;
+}
+
+/* ===== 既存 ===== */
+let rate=+localStorage.getItem("rate")||1500;
+let xp=+localStorage.getItem("xp")||0;
+let locked=false,lastWord=null,current=null;
+let q=0,correct=0,pendingRate=0,mode="jp-en";
+
+const words=[
 {jp:"りんご",en:"apple",rank:1},
 {jp:"ねこ",en:"cat",rank:1},
 {jp:"いぬ",en:"dog",rank:1},
@@ -137,16 +151,78 @@ const rankData={
 {jp:"友達",en:"friend",rank:3},
 {jp:"土曜日",en:"saturday",rank:3},
 
-{jp:"先生",en:"teacher",rank:4}
-{jp:"水曜日",en:"wednesday",rank:4}
-{jp:"木曜日",en:"thursday",rank:4}
+{jp:"先生",en:"teacher",rank:4},
+{jp:"水曜日",en:"wednesday",rank:4},
+{jp:"木曜日",en:"thursday",rank:4},
+{jp:"経済", en:"economy", rank:5},
+{jp:"哲学", en:"philosophy", rank:5},
+
+{jp:"環境", en:"environment", rank:6},
+{jp:"文化", en:"culture", rank:6},
+
+{jp:"民主主義", en:"democracy", rank:7},
+{jp:"産業革命", en:"industrial revolution", rank:7},
+
+{jp:"相対性理論", en:"theory of relativity", rank:8},
+{jp:"量子力学", en:"quantum mechanics", rank:8},
+
+{jp:"意識", en:"consciousness", rank:9},
+{jp:"存在論", en:"ontology", rank:9},
+
+{jp:"形而上学", en:"metaphysics", rank:10},
+{jp:"超弦理論", en:"string theory", rank:10},
 ];
+/* ===== 問題ランク別 レート変動（完全手動）===== */
+/*
+  key = 問題ランク（1〜10）
+  correct = 正解時のレート増加
+  miss    = ミス時のレート減少
+*/
+const rateByQuestionRank = {
+  1:  { correct: 3,  miss: 6 },
+  2:  { correct: 4,  miss: 6 },
+  3:  { correct: 5,  miss: 5 },
+  4:  { correct: 6,  miss: 5 },
+  5:  { correct: 7,  miss: 4 },
+  6:  { correct: 8,  miss: 4 },
+  7:  { correct: 9,  miss: 3 },
+  8:  { correct: 11, miss: 3 },
+  9:  { correct: 13, miss: 2 },
+  10: { correct: 15, miss: 2 },
+};
 
-let rate=+localStorage.getItem("rate")||1500;
-let xp=+localStorage.getItem("xp")||0;
-let locked=false,lastWord=null,current=null;
-let q=0,correct=0,pendingRate=0,mode="jp-en";
+/* ===== レートごとの出題ランク制限 ===== */
+const rateQuestionLimit = [
+  { min: 0,    max: 1099, minRank: 1, maxRank: 3 },
+  { min: 1100, max: 1299, minRank: 1, maxRank: 4 },
+  { min: 1300, max: 1499, minRank: 2, maxRank: 5 },
+  { min: 1500, max: 1699, minRank: 3, maxRank: 6 },
+  { min: 1700, max: 1899, minRank: 4, maxRank: 7 },
+  { min: 1900, max: 9999, minRank: 5, maxRank: 8 },
+];
+function getQuestionRankLimit(rate){
+  for(const r of rateQuestionLimit){
+    if(rate >= r.min && rate <= r.max){
+      return r;
+    }
+  }
+  return rateQuestionLimit[0];
+}
 
+function pickWordByRateLimit(){
+  const limit = getQuestionRankLimit(rate);
+
+  const pool = words.filter(w =>
+    w.rank >= limit.minRank && w.rank <= limit.maxRank
+  );
+
+  // 保険（ここ重要）
+  if(pool.length === 0){
+    return words[Math.floor(Math.random()*words.length)];
+  }
+
+  return pool[Math.floor(Math.random()*pool.length)];
+}
 function showScreen(id){
 document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));
 document.getElementById(id).classList.add("active");
@@ -170,6 +246,9 @@ let cur=xp-used,next=rankNeed(lv);
 
 xpText.textContent=cur+" / "+next;
 xpBar.style.width=(cur/next*100)+"%";
+
+const r=getRankRank();
+rankRate.textContent=rankRanks[r].name+" ("+rankRate+")";
 
 if(localStorage.getItem("icon")) icon.src=localStorage.getItem("icon");
 authorType.value=localStorage.getItem("authorType")||"";
@@ -201,64 +280,78 @@ function nextQuestion(){
 locked=false;
 if(q>=10)return finishGame();
 
-do{
-current=words[Math.floor(Math.random()*words.length)];
-}while(current===lastWord);
-lastWord=current;
+if(mode==="rank"){
+  const rr=getRankRank();
+  let targetRank=1;
+  if(rr<=1)targetRank=1;
+  else if(rr===2)targetRank=2;
+  else if(rr===3)targetRank=3;
+  else if(rr===4)targetRank=4;
+  else if(rr===5)targetRank=5;
+  else if(rr===6)targetRank=6;
+  else targetRank=Math.floor(Math.random()*4)+7;
 
-question.textContent=mode==="en-jp"?current.en:current.jp;
+  const pool=words.filter(w=>w.rank===targetRank);
+  current=pool[Math.floor(Math.random()*pool.length)];
+}else{
+  current = pickWordByRateLimit();
+}
+
+question.textContent=current.jp;
 answer.value="";
 msg.textContent="";
 countView.textContent=q+1;
 }
 
 function checkAnswer(){
-if(locked)return;
-locked=true;
+  if(locked) return;
+  locked = true;
+  q++;
 
-const ans=mode==="en-jp"?current.jp:current.en;
-q++;
+  const ok = answer.value.trim().toLowerCase() === current.en.toLowerCase();
 
-const data=rankData[current.rank];
-  
-  if(answer.value.trim().toLowerCase()===ans.toLowerCase()){
-correct++; pendingRate+=10; msg.textContent="⭕ 正解";
-}else{
-pendingRate-=5; msg.textContent="❌ 正解: "+ans;
-}
-setTimeout(nextQuestion,400);
+  // ★ ここが手動設定方式の核心
+  const r = current.rank;
+  const rateSet = rateByQuestionRank[r] || { correct: 5, miss: 5 };
+
+  if(ok){
+    correct++;
+    pendingRate += rateSet.correct;
+    if(mode === "rank") rankRate++;
+    msg.textContent = "⭕ 正解 (+" + rateSet.correct + ")";
+  }else{
+    pendingRate -= rateSet.miss;
+    if(mode === "rank") rankRate = Math.max(0, rankRate - 1);
+    msg.textContent = "❌ 正解: " + current.en + " (-" + rateSet.miss + ")";
+  }
+
+  setTimeout(nextQuestion, 400);
 }
 
 function skipQuestion(){
-if(locked)return;
-locked=true;
-q++; pendingRate-=5;
-msg.textContent="スキップ";
-setTimeout(nextQuestion,400);
-}
+  if(locked) return;
+  locked = true;
+  q++;
 
-function wait(ms){return new Promise(r=>setTimeout(r,ms));}
+  const r = current.rank;
+  const rateSet = rateByQuestionRank[r] || { miss: 5 };
+
+  pendingRate -= rateSet.miss;
+  if(mode === "rank") rankRate = Math.max(0, rankRate - 1);
+  msg.textContent = "スキップ (-" + rateSet.miss + ")";
+
+  setTimeout(nextQuestion, 400);
+}
 
 async function finishGame(){
 rate=Math.max(0,rate+pendingRate);
 xp+=correct*10;
 localStorage.setItem("rate",rate);
 localStorage.setItem("xp",xp);
+localStorage.setItem("rankRate",rankRate);
 
 showScreen("result");
-resultText.innerHTML="";
-profileButton.innerHTML="";
-
-await wait(200);
-resultText.innerHTML="正解数 : "+correct+"/10";
-
-await wait(200);
-resultText.innerHTML+="<br>レート変動 : "+(pendingRate>=0?"+":"")+pendingRate;
-
-await wait(200);
-resultText.innerHTML+="<br>現在レート : "+rate;
-
-await wait(700);
+resultText.innerHTML="正解数 : "+correct+"/10<br>レート変動 : "+pendingRate+"<br>現在レート : "+rate;
 profileButton.innerHTML='<button onclick="backProfile()">プロフィールへ</button>';
 }
 
