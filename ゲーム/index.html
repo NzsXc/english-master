@@ -178,51 +178,283 @@ const words=[
   correct = 正解時のレート増加
   miss    = ミス時のレート減少
 */
-const rateByQuestionRank = {
-  1:  { correct: 3,  miss: 6 },
-  2:  { correct: 4,  miss: 6 },
-  3:  { correct: 5,  miss: 5 },
-  4:  { correct: 6,  miss: 5 },
-  5:  { correct: 7,  miss: 4 },
-  6:  { correct: 8,  miss: 4 },
-  7:  { correct: 9,  miss: 3 },
-  8:  { correct: 11, miss: 3 },
-  9:  { correct: 13, miss: 2 },
-  10: { correct: 15, miss: 2 },
-};
+const rateBands = [
 
-/* ===== レートごとの出題ランク制限 ===== */
-const rateQuestionLimit = [
-  { min: 0,    max: 1099, minRank: 1, maxRank: 3 },
-  { min: 1100, max: 1299, minRank: 1, maxRank: 4 },
-  { min: 1300, max: 1499, minRank: 2, maxRank: 5 },
-  { min: 1500, max: 1699, minRank: 3, maxRank: 6 },
-  { min: 1700, max: 1899, minRank: 4, maxRank: 7 },
-  { min: 1900, max: 9999, minRank: 5, maxRank: 8 },
+{
+min:0,max:499,
+ranks:{
+1:{weight:30,correct:2,miss:2},
+2:{weight:30,correct:2,miss:1},
+3:{weight:20,correct:2,miss:0},
+4:{weight:10,correct:3,miss:0},
+5:{weight:10,correct:4,miss:0},
+}
+},
+
+{
+min:500,max:599,
+ranks:{
+1:{weight:20,correct:2,miss:2},
+2:{weight:20,correct:2,miss:1},
+3:{weight:40,correct:3,miss:1},
+4:{weight:10,correct:3,miss:0},
+5:{weight:10,correct:3,miss:0},
+}
+},
+
+{
+min:600,max:699,
+ranks:{
+1:{weight:10,correct:2,miss:3},
+2:{weight:25,correct:2,miss:1},
+3:{weight:30,correct:3,miss:1},
+4:{weight:20,correct:3,miss:0},
+5:{weight:10,correct:3,miss:0},
+6:{weight:5,correct:3,miss:0},
+}
+},
+
+{
+min:700,max:799,
+ranks:{
+1:{weight:10,correct:1,miss:3},
+2:{weight:25,correct:2,miss:2},
+3:{weight:25,correct:2,miss:1},
+4:{weight:20,correct:3,miss:1},
+5:{weight:10,correct:3,miss:0},
+6:{weight:5,correct:3,miss:0},
+7:{weight:5,correct:3,miss:0},
+}
+},
+
+{
+min:800,max:899,
+ranks:{
+1:{weight:5,correct:1,miss:3},
+2:{weight:20,correct:1,miss:3},
+3:{weight:20,correct:2,miss:1},
+4:{weight:25,correct:3,miss:1},
+5:{weight:20,correct:3,miss:1},
+6:{weight:5,correct:3,miss:0},
+7:{weight:5,correct:3,miss:0},
+}
+},
+
+{
+min:900,max:999,
+ranks:{
+2:{weight:10,correct:1,miss:3},
+3:{weight:20,correct:2,miss:2},
+4:{weight:30,correct:3,miss:2},
+5:{weight:25,correct:3,miss:1},
+6:{weight:10,correct:3,miss:1},
+7:{weight:5,correct:3,miss:0},
+}
+},
+
+{
+min:1000,max:1099,
+ranks:{
+2:{weight:5,correct:1,miss:3},
+3:{weight:25,correct:2,miss:3},
+4:{weight:30,correct:3,miss:2},
+5:{weight:25,correct:3,miss:1},
+6:{weight:10,correct:3,miss:1},
+7:{weight:5,correct:3,miss:0},
+}
+},
+
+{
+min:1100,max:1199,
+ranks:{
+2:{weight:5,correct:1,miss:3},
+3:{weight:20,correct:1,miss:3},
+4:{weight:30,correct:2,miss:2},
+5:{weight:30,correct:3,miss:1},
+6:{weight:10,correct:3,miss:1},
+7:{weight:5,correct:3,miss:0},
+}
+},
+
+{
+min:1200,max:1299,
+ranks:{
+2:{weight:5,correct:1,miss:3},
+3:{weight:15,correct:1,miss:3},
+4:{weight:30,correct:2,miss:2},
+5:{weight:30,correct:3,miss:2},
+6:{weight:10,correct:3,miss:2},
+7:{weight:5,correct:3,miss:1},
+8:{weight:5,correct:3,miss:0},
+}
+},
+
+{
+min:1300,max:1399,
+ranks:{
+2:{weight:5,correct:1,miss:4},
+3:{weight:10,correct:1,miss:3},
+4:{weight:35,correct:2,miss:3},
+5:{weight:30,correct:2,miss:2},
+6:{weight:10,correct:3,miss:2},
+7:{weight:5,correct:3,miss:1},
+8:{weight:5,correct:3,miss:0},
+}
+},
+
+{
+min:1400,max:1499,
+ranks:{
+3:{weight:10,correct:1,miss:3},
+4:{weight:30,correct:2,miss:3},
+5:{weight:35,correct:2,miss:2},
+6:{weight:15,correct:2,miss:2},
+7:{weight:5,correct:3,miss:2},
+8:{weight:5,correct:3,miss:0},
+}
+},
+
+{
+min:1500,max:1599,
+ranks:{
+3:{weight:5,correct:0,miss:3},
+4:{weight:25,correct:2,miss:3},
+5:{weight:35,correct:2,miss:2},
+6:{weight:20,correct:2,miss:2},
+7:{weight:5,correct:3,miss:2},
+8:{weight:5,correct:3,miss:1},
+9:{weight:3,correct:4,miss:1},
+10:{weight:2,correct:4,miss:0},
+}
+},
+
+{
+min:1600,max:1699,
+ranks:{
+4:{weight:20,correct:1,miss:3},
+5:{weight:40,correct:2,miss:3},
+6:{weight:25,correct:2,miss:2},
+7:{weight:5,correct:2,miss:2},
+8:{weight:5,correct:3,miss:1},
+9:{weight:3,correct:3,miss:1},
+10:{weight:2,correct:4,miss:0},
+}
+},
+
+{
+min:1700,max:1799,
+ranks:{
+4:{weight:10,correct:1,miss:4},
+5:{weight:35,correct:2,miss:3},
+6:{weight:30,correct:2,miss:3},
+7:{weight:15,correct:2,miss:2},
+8:{weight:5,correct:2,miss:1},
+9:{weight:3,correct:2,miss:1},
+10:{weight:2,correct:3,miss:1},
+}
+},
+
+{
+min:1800,max:1899,
+ranks:{
+4:{weight:5,correct:0,miss:4},
+5:{weight:20,correct:1,miss:3},
+6:{weight:30,correct:2,miss:3},
+7:{weight:30,correct:2,miss:2},
+8:{weight:10,correct:2,miss:2},
+9:{weight:3,correct:2,miss:1},
+10:{weight:2,correct:3,miss:1},
+}
+},
+
+{
+min:1900,max:1999,
+ranks:{
+5:{weight:10,correct:1,miss:4},
+6:{weight:30,correct:1,miss:4},
+7:{weight:30,correct:1,miss:2},
+8:{weight:20,correct:2,miss:2},
+9:{weight:5,correct:2,miss:1},
+10:{weight:5,correct:3,miss:1},
+}
+},
+
+{
+min:2000,max:2099,
+ranks:{
+6:{weight:25,correct:1,miss:4},
+7:{weight:30,correct:1,miss:3},
+8:{weight:30,correct:2,miss:3},
+9:{weight:10,correct:2,miss:2},
+10:{weight:5,correct:3,miss:2},
+}
+},
+
+{
+min:2100,max:2199,
+ranks:{
+6:{weight:15,correct:1,miss:4},
+7:{weight:30,correct:1,miss:4},
+8:{weight:35,correct:2,miss:4},
+9:{weight:15,correct:2,miss:4},
+10:{weight:5,correct:3,miss:4},
+}
+},
+
+{
+min:2200,max:2299,
+ranks:{
+6:{weight:10,correct:0,miss:4},
+7:{weight:10,correct:0,miss:4},
+8:{weight:35,correct:1,miss:4},
+9:{weight:35,correct:2,miss:4},
+10:{weight:10,correct:2,miss:4},
+}
+},
+
+{
+min:2300,max:999999,
+ranks:{
+7:{weight:10,correct:0,miss:6},
+8:{weight:30,correct:1,miss:5},
+9:{weight:40,correct:1,miss:4},
+10:{weight:20,correct:2,miss:4},
+}
+}
+
 ];
-function getQuestionRankLimit(rate){
-  for(const r of rateQuestionLimit){
-    if(rate >= r.min && rate <= r.max){
-      return r;
-    }
-  }
-  return rateQuestionLimit[0];
+function getCurrentBand(){
+  return rateBands.find(
+    b => rate >= b.min && rate <= b.max
+  );
 }
 
 function pickWordByRateLimit(){
-  const limit = getQuestionRankLimit(rate);
 
-  const pool = words.filter(w =>
-    w.rank >= limit.minRank && w.rank <= limit.maxRank
-  );
+  const band = getCurrentBand();
 
-  // 保険（ここ重要）
-  if(pool.length === 0){
-    return words[Math.floor(Math.random()*words.length)];
-  }
+  const weighted = [];
 
-  return pool[Math.floor(Math.random()*pool.length)];
+  Object.entries(band.ranks).forEach(([rank,data])=>{
+
+    const wordsOfRank =
+      words.filter(w=>w.rank===Number(rank));
+
+    for(let i=0;i<data.weight;i++){
+      weighted.push(
+        wordsOfRank[
+          Math.floor(Math.random()*wordsOfRank.length)
+        ]
+      );
+    }
+
+  });
+
+  return weighted[
+    Math.floor(Math.random()*weighted.length)
+  ];
 }
+
 function showScreen(id){
 document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));
 document.getElementById(id).classList.add("active");
@@ -311,8 +543,8 @@ function checkAnswer(){
   const ok = answer.value.trim().toLowerCase() === current.en.toLowerCase();
 
   // ★ ここが手動設定方式の核心
-  const r = current.rank;
-  const rateSet = rateByQuestionRank[r] || { correct: 5, miss: 5 };
+  const band = getCurrentBand();
+const rateSet = band.ranks[current.rank];
 
   if(ok){
     correct++;
@@ -333,8 +565,8 @@ function skipQuestion(){
   locked = true;
   q++;
 
-  const r = current.rank;
-  const rateSet = rateByQuestionRank[r] || { miss: 5 };
+const band = getCurrentBand();
+const rateSet = band.ranks[current.rank];
 
   pendingRate -= rateSet.miss;
   if(mode === "rank") rankRate = Math.max(0, rankRate - 1);
