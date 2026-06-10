@@ -340,7 +340,9 @@ function getRankRank(){
 let rate=+localStorage.getItem("rate")||500;
 let xp=+localStorage.getItem("xp")||0;
 let locked=false,lastWord=null,current=null;
-let q=0,correct=0,pendingRate=0,mode="jp-en";
+let q=0,correct=0,pendingRate=0,pendingRankRate=0,mode="jp-en";
+let usedIndexes = [];   // ★ 追加（重複防止用）
+
 
 const words=[
 {jp:"りんご",en:"apple",rank:1},
@@ -690,9 +692,17 @@ function pickWordByRateLimit(){
 
   });
 
-  return weighted[
-    Math.floor(Math.random()*weighted.length)
-  ];
+
+  if(weighted.length === 0){
+    finishGame();
+    return null;
+  }
+
+  const picked =
+    weighted[Math.floor(Math.random()*weighted.length)];
+
+  usedIndexes.push(picked.index);
+  return picked;
 }
 
 function showScreen(id){
@@ -807,6 +817,13 @@ function startGame(m){
   homeBgm.pause();
   homeBgm.currentTime = 0;
 
+    mode=m;
+  q=0;
+  correct=0;
+  pendingRate=0;
+  pendingRankRate=0; // ★ 
+    usedIndexes = [];   // ★ 追加（毎回10問でリセット）
+
   const questionBgm =
     document.getElementById("questionBgm");
 
@@ -859,15 +876,29 @@ if(mode==="rank"){
   const targetRank =
     ranks[Math.floor(Math.random()*ranks.length)];
 
-  const pool =
-    words.filter(w=>w.rank===targetRank);
+const pool =
+  words
+    .map((w,i)=>({...w,index:i}))
+    .filter(w =>
+      w.rank === targetRank &&
+      !usedIndexes.includes(w.index)
+    );
 
-  current =
-    pool[Math.floor(Math.random()*pool.length)];
-}else{
-  current = pickWordByRateLimit();
+if(pool.length === 0){
+  finishGame();
+  return;
 }
 
+const picked =
+  pool[Math.floor(Math.random()*pool.length)];
+
+current = picked;
+usedIndexes.push(picked.index);
+}else{
+current = pickWordByRateLimit();
+if(!current) return;
+}
+if(!current) return;
 question.textContent=current.jp;
 answer.value="";
 msg.textContent="";
@@ -879,57 +910,57 @@ function checkAnswer(){
   locked = true;
   q++;
 
-  const ok = answer.value.trim().toLowerCase() === current.en.toLowerCase();
+  const ok =
+    answer.value.trim().toLowerCase() ===
+    current.en.toLowerCase();
 
-  // ★ ここが手動設定方式の核心
-  const band = getCurrentBand();
-const rateSet = band.ranks[current.rank];
-
-if(ok){
-  document.getElementById("correctSe").currentTime = 0;
-  document.getElementById("correctSe").play();
-
-  correct++;
-
-  if(mode==="rank"){
-    rankRate++;
-console.log("正解後 rankRate =", rankRate);
+  if(mode === "rank"){
+    if(ok){
+      correct++;
+      pendingRankRate += 1;
+      msg.textContent = "⭕ 正解（ランク +1）";
+    }else{
+      pendingRankRate -= 1;
+      msg.textContent = "❌ 不正解（ランク -1）";
+    }
   }else{
-    pendingRate += rateSet.correct;
-  }
-    msg.textContent = "⭕ 正解 (+" + rateSet.correct + ")";
-}else{
-  document.getElementById("wrongSe").currentTime = 0;
-  document.getElementById("wrongSe").play();
+    const band = getCurrentBand();
+    const rateSet = band.ranks[current.rank];
 
-  if(mode==="rank"){
-    rankRate = Math.max(0, rankRate - 1);
+    if(ok){
+      correct++;
+      pendingRate += rateSet.correct;
+      msg.textContent = "⭕ 正解（+" + rateSet.correct + "）";
+    }else{
+      pendingRate -= rateSet.miss;
+      msg.textContent =
+        "❌ 正解: " + current.en + "（-" + rateSet.miss + "）";
+    }
+  }
+
+  // ★ ここが重要：存在確認
+  if(typeof nextQuestion === "function"){
+    setTimeout(nextQuestion, 400);
   }else{
-    pendingRate -= rateSet.miss;
+    console.error("nextQuestion が未定義");
+    locked = false; // 応急処置
   }
-    msg.textContent = "❌ 正解: " + current.en + " (-" + rateSet.miss + ")";
-  }
-
-  setTimeout(nextQuestion, 400);
 }
 
 function skipQuestion(){
   if(locked) return;
   locked = true;
-  document.getElementById("wrongSe").currentTime = 0;
-  document.getElementById("wrongSe").play();
   q++;
 
-const band = getCurrentBand();
-const rateSet = band.ranks[current.rank];
-
-if(mode==="rank"){
-  rankRate = Math.max(0, rankRate - 1);
-  msg.textContent = "スキップ (ランクレート -1)";
-}else{
-  pendingRate -= rateSet.miss;
-  msg.textContent = "スキップ (-" + rateSet.miss + ")";
-}
+  if(mode === "rank"){
+    pendingRankRate -= 1;
+    msg.textContent = "スキップ（ランク -1）";
+  }else{
+    const band = getCurrentBand();
+    const rateSet = band.ranks[current.rank];
+    pendingRate -= rateSet.miss;
+    msg.textContent = "スキップ（-" + rateSet.miss + "）";
+  }
 
   setTimeout(nextQuestion, 400);
 }
@@ -949,6 +980,12 @@ if(questionBgm){
   }
 
   xp+=correct*10;
+
+  if(mode === "rank"){
+  rankRate += pendingRankRate;
+  if(rankRate < 0) rankRate = 0;
+  localStorage.setItem("rankRate", rankRate);
+}
 
   localStorage.setItem("xp",xp);
   localStorage.setItem("rankRate",rankRate);
