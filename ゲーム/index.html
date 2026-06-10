@@ -8,6 +8,29 @@
 <title>英単語Master</title>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
+  #fadeScreen{
+  position:fixed;
+  inset:0;
+  background:#fff;
+  opacity:0;
+  pointer-events:none;
+  z-index:9999;
+  transition:opacity 0.6s;
+}
+  #resultHistory{
+  margin-top:20px;
+  max-height:350px;
+  overflow-y:auto;
+  text-align:left;
+}
+
+.resultRow{
+  display:grid;
+  grid-template-columns:50px 1fr 1fr 80px;
+  gap:10px;
+  padding:8px;
+  border-bottom:1px solid #ddd;
+}
 #rankRateBar{
   background:linear-gradient(90deg,#ff9800,#ffd54f);
 }
@@ -214,6 +237,41 @@ margin-top:40px;
 </style>
 </head>
 <body>
+  <div id="help" class="screen">
+  <div class="card">
+
+    <h2>ヘルプ</h2>
+
+    <button onclick="showHelpText('play')">
+      遊び方
+    </button>
+
+    <button onclick="showHelpText('knowledge')">
+      知識
+    </button>
+
+    <button onclick="showHelpText('update')">
+      更新履歴
+    </button>
+
+<button onclick="showHelpText('policy')">
+  規約等
+</button>
+
+    <hr>
+
+    <div id="helpContent">
+      ボタンを選択してください
+    </div>
+
+    <br>
+
+    <button onclick="showScreen('settings')">
+      戻る
+    </button>
+
+  </div>
+</div>
 <audio id="correctSe">
   <source src="col.mp3" type="audio/mpeg">
 </audio>
@@ -226,6 +284,7 @@ margin-top:40px;
 </audio>
 
 <div id="bgWords"></div>
+<div id="fadeScreen"></div>
 <div id="profile" class="screen active">
 <div class="card">
 <h1>英単語Master</h1>
@@ -269,6 +328,9 @@ margin-top:40px;
 
 <button onclick="showScreen('settings')">設定</button>
 <button onclick="showScreen('mode')">ゲームへ</button>
+<button onclick="showScreen('help')">
+ヘルプ
+</button>
 </div>
 </div>
 
@@ -310,11 +372,101 @@ margin-top:40px;
 <div class="card">
 <h2>結果</h2>
 <div id="resultText"></div>
+
+<div id="resultHistory"></div>
+
 <div id="profileButton"></div>
 </div>
 </div>
 
 <script>
+  function showHelpText(type){
+
+  const box =
+    document.getElementById("helpContent");
+
+  if(type==="play"){
+
+    box.innerHTML = `
+      日→英モードでレートを上げよう。<br>
+      ランクモードでは上のランクを目指して、実力相応の問題にチャレンジ！<br>
+    `;
+
+  }
+
+  else if(type==="knowledge"){
+
+    box.innerHTML = `
+      レートが上がるほど高ランク単語が出やすくなります。<br>
+      また、同じ問題を解いても、レートが上がるほどもらえるレートが減少し、失うレートが増加します。<br>
+      <br>
+      ランクモードでは自分のランクに応じた問題のみが出題されます。<br>
+      正解で+1、ミスで-1　ランクレートが変動し、一定ポイントに到達するとランクアップします!!<br>
+      ランクは全部で8種類で、ビギナーからのスタートです。<br>
+      ランクレートはランクモードでのみ変動し、日→英モードのレートとは別に管理されます。<br>
+    `;
+
+  }
+
+  else if(type==="update"){
+
+    box.innerHTML = `
+      2026/6/8　制作開始<br>
+      ・6/9ランクモード追加、レートシステム追加<br>
+    `;
+
+  }
+  else if(type==="privacy"){
+
+  box.innerHTML = `
+  このゲームは学習データを
+  ブラウザ内に保存します。<br><br>
+
+  個人情報の収集は行いません。<br><br>
+
+  今後サービス内容が変更された場合は
+  本ページでお知らせします。
+  `;
+
+}
+
+else if(type==="policy"){
+
+  box.innerHTML = `
+【プライバシーポリシー】
+
+英単語Master（以下「本サービス」）では、ユーザー名、アイコン画像、学習データなどをブラウザ内の保存機能（LocalStorage）に保存する場合があります。
+
+これらのデータは利用者の端末内にのみ保存され、運営者へ送信されることはありません。
+
+本サービスでは、利用者の氏名、住所、電話番号、メールアドレスなどの個人情報を収集していません。
+
+本サービスは予告なく内容を変更、または提供を終了する場合があります。
+
+今後、アクセス解析や広告配信サービス等を導入する場合は、本ポリシーを更新し、その内容をお知らせします。
+
+制定日：2026年6月10日<br>
+
+<br>
+【利用規約】
+本サービスを利用した時点で、本規約に同意したものとみなします。
+
+本サービスは無料で利用できます。
+
+利用者は自己の責任において本サービスを利用するものとします。
+
+運営者は、本サービスの利用により発生したいかなる損害についても責任を負いません。
+
+本サービス内の文章、画像、プログラム等の著作権は、特別な記載がない限り運営者に帰属します。
+
+本規約は必要に応じて変更される場合があります。<br>
+
+制定日：2026年6月10日
+  `;
+
+}
+
+}
 /* ===== 追加① ランクレート ===== */
 let rankRate = +localStorage.getItem("rankRate") || 0;
 
@@ -341,10 +493,12 @@ let rate=+localStorage.getItem("rate")||500;
 let xp=+localStorage.getItem("xp")||0;
 let locked=false,lastWord=null,current=null;
 let q=0,correct=0,pendingRate=0,pendingRankRate=0,mode="jp-en";
+let resultHistory=[];
 let usedIndexes = [];   // ★ 追加（重複防止用）
 
 
 const words=[
+
 {jp:"りんご",en:"apple",rank:1},
 {jp:"ねこ",en:"cat",rank:1},
 {jp:"いぬ",en:"dog",rank:1},
@@ -355,64 +509,311 @@ const words=[
 {jp:"あお",en:"blue",rank:1},
 {jp:"あか",en:"red",rank:1},
 {jp:"そら",en:"sky",rank:1},
+{jp:"水",en:"water",rank:1},
+{jp:"火",en:"fire",rank:1},
+{jp:"木",en:"tree",rank:1},
+{jp:"海",en:"sea",rank:1},
+{jp:"太陽",en:"sun",rank:1},
+{jp:"月",en:"moon",rank:1},
 
-{jp:"学校",en:"school",rank:2},
-{jp:"時間",en:"time",rank:2},
-{jp:"ベッド",en:"bed",rank:2},
-{jp:"みどり",en:"green",rank:2},
+{jp:"車",en:"car",rank:1},
+{jp:"電車",en:"train",rank:1},
+{jp:"家",en:"house",rank:1},
+{jp:"窓",en:"window",rank:1},
+{jp:"ドア",en:"door",rank:1},
+
+{jp:"かばん",en:"bag",rank:1},
+{jp:"帽子",en:"hat",rank:1},
+{jp:"靴",en:"shoe",rank:3},
+{jp:"シャツ",en:"shirt",rank:3},
+
+{jp:"手",en:"hand",rank:1},
+{jp:"足",en:"foot",rank:3},
+{jp:"目",en:"eye",rank:1},
+{jp:"耳",en:"ear",rank:3},
+{jp:"口",en:"mouth",rank:2},
+{jp:"顔",en:"face",rank:1},
+
+{jp:"男",en:"man",rank:1},
+{jp:"女",en:"woman",rank:1},
+{jp:"子供",en:"child",rank:1},
+{jp:"赤ちゃん",en:"baby",rank:1},
+{jp:"父",en:"father",rank:1},
+{jp:"母",en:"mother",rank:1},
+{jp:"兄",en:"brother",rank:1},
+{jp:"姉",en:"sister",rank:1},
+
+{jp:"食べる",en:"eat",rank:1},
+{jp:"飲む",en:"drink",rank:1},
+{jp:"行く",en:"go",rank:1},
+{jp:"来る",en:"come",rank:1},
+{jp:"見る",en:"see",rank:1},
+{jp:"聞く",en:"hear",rank:1},
+{jp:"読む",en:"read",rank:1},
+{jp:"書く",en:"write",rank:1},
+
+{jp:"大きい",en:"big",rank:1},
+{jp:"小さい",en:"small",rank:1},
+{jp:"新しい",en:"new",rank:1},
+{jp:"古い",en:"old",rank:1},
+{jp:"速い",en:"fast",rank:2},
+{jp:"遅い",en:"slow",rank:2},
+{jp:"暑い/熱い",en:"hot",rank:1},
+{jp:"寒い",en:"cold",rank:1},
+
+{jp:"学校",en:"school",rank:1},
+{jp:"時間/回数",en:"time",rank:2},
+{jp:"ベッド",en:"bed",rank:1},
+{jp:"みどり",en:"green",rank:1},
 {jp:"花",en:"flower",rank:2},
 {jp:"数学",en:"math",rank:2},
 {jp:"英語",en:"english",rank:2},
-{jp:"金曜日",en:"friday",rank:2},
-{jp:"日曜日",en:"sunday",rank:2},
+{jp:"金曜日",en:"friday",rank:1},
+{jp:"日曜日",en:"sunday",rank:1},
 {jp:"月曜日",en:"monday",rank:2},
+{jp:"鉱物",en:"mineral",rank:3},
+{jp:"家族",en:"family",rank:2},
+{jp:"部屋/空間",en:"room",rank:2},
+{jp:"机",en:"desk",rank:2},
+{jp:"椅子",en:"chair",rank:2},
+{jp:"公園",en:"park",rank:2},
+{jp:"病院",en:"hospital",rank:2},
+{jp:"駅",en:"station",rank:2},
+{jp:"川",en:"river",rank:2},
+{jp:"山",en:"mountain",rank:2},
+{jp:"雨",en:"rain",rank:2},
+{jp:"雪",en:"snow",rank:2},
+{jp:"朝",en:"morning",rank:2},
+{jp:"夜",en:"night",rank:2},
+{jp:"走る/運営する",en:"run",rank:2},
+{jp:"歩く",en:"walk",rank:2},
+{jp:"大きい/重要な",en:"big",rank:2},
+{jp:"小さい/幼い",en:"small",rank:2},
 
-{jp:"火曜日",en:"tuesday",rank:3},
-{jp:"友達",en:"friend",rank:3},
-{jp:"土曜日",en:"saturday",rank:3},
+{jp:"火曜日",en:"tuesday",rank:2},
+{jp:"友達",en:"friend",rank:2},
+{jp:"土曜日",en:"saturday",rank:2},
 {jp:"毒",en:"poison",rank:3},
 {jp:"霧",en:"mist",rank:3},
+{jp:"鉱山/採掘する",en:"mine",rank:3},
+{jp:"恐竜",en:"dinosaur",rank:4},
+{jp:"たんぱく質",en:"protein",rank:3},
+{jp:"顕微鏡",en:"microscope",rank:3},
+{jp:"クローン",en:"clone",rank:3},
+{jp:"発光ダイオード",en:"LED",rank:3},
+{jp:"町",en:"town",rank:2},
+{jp:"村",en:"village",rank:3},
+{jp:"橋/架け橋",en:"bridge",rank:2},
+{jp:"森",en:"forest",rank:3},
+{jp:"湖",en:"lake",rank:3},
+{jp:"島",en:"island",rank:3},
+{jp:"動物",en:"animal",rank:2},
+{jp:"植物/工場",en:"plant",rank:3},
+{jp:"季節",en:"season",rank:2},
+{jp:"天気",en:"weather",rank:2},
+{jp:"旅行/移動",en:"travel",rank:2},
+{jp:"休日/祝日",en:"holiday",rank:2},
+{jp:"健康",en:"health",rank:3},
+{jp:"未来",en:"future",rank:3},
+{jp:"過去/過ぎた",en:"past",rank:4},
+{jp:"考える/思う",en:"think",rank:2},
+{jp:"学ぶ/知る",en:"learn",rank:2},
+{jp:"作る/創造する",en:"create",rank:3},
+{jp:"始める",en:"begin",rank:2},
+{jp:"終える/仕上げる",en:"finish",rank:2},
 
-{jp:"先生",en:"teacher",rank:4},
-{jp:"水曜日",en:"wednesday",rank:4},
-{jp:"木曜日",en:"thursday",rank:4},
-{jp:"層",en:"layer",rank:4},
-{jp:"光線",en:"ray",rank:4},
+{jp:"先生",en:"teacher",rank:2},
+{jp:"水曜日",en:"wednesday",rank:3},
+{jp:"木曜日",en:"thursday",rank:3},
+{jp:"層/階層",en:"layer",rank:4},
+{jp:"光線/線",en:"ray",rank:4},
 {jp:"測る",en:"measure",rank:4},
 {jp:"危険",en:"hazard",rank:4},
 {jp:"循環",en:"circulate",rank:4},
-{jp:"日陰",en:"shade",rank:4},
+{jp:"日陰/陰",en:"shade",rank:4},
+{jp:"生成する/生み出す",en:"generate",rank:4},
+{jp:"不足している",en:"scarce",rank:4},
+{jp:"持続可能な",en:"sustainable",rank:4},
+{jp:"無限の",en:"infinite",rank:4},
+{jp:"居住可能な",en:"habitable",rank:4},
+{jp:"復活させる",en:"revive",rank:4},
+{jp:"繁殖する",en:"reproduce",rank:4},
+{jp:"巣",en:"nest",rank:4},
+{jp:"生物/生き物",en:"creature",rank:4},
+{jp:"骨格",en:"skeleton",rank:4},
+{jp:"雑種",en:"hybrid",rank:4},
+{jp:"目に見える",en:"visible",rank:4},
+{jp:"寄生生物",en:"parasite",rank:4},
+{jp:"進化",en:"evolution",rank:4},
+{jp:"分類する",en:"sort",rank:4},
+{jp:"解剖学",en:"anatomy",rank:4},
+{jp:"王国/界",en:"kingdom",rank:4},
+{jp:"マンモス",en:"mammoth",rank:4},
+{jp:"まねる/模倣する",en:"mimic",rank:4},
+{jp:"温室",en:"greenhouse",rank:4},
+{jp:"原子",en:"atom",rank:4},
+{jp:"固体/固形物",en:"solid",rank:4},
+{jp:"溶ける",en:"melt",rank:4},
+{jp:"仕掛け",en:"gimmick",rank:4},
+{jp:"知識",en:"knowledge",rank:5},
+{jp:"情報",en:"information",rank:4},
+{jp:"研究/調査",en:"research",rank:4},
+{jp:"技術/科学技術",en:"technology",rank:4},
+{jp:"発明",en:"invention",rank:5},
+{jp:"発見",en:"discovery",rank:4},
+{jp:"原因/引き起こすもの",en:"cause",rank:3},
+{jp:"結果",en:"result",rank:3},
+{jp:"方法/手法",en:"method",rank:4},
+{jp:"目的/意図",en:"purpose",rank:4},
+{jp:"課題/問題",en:"issue",rank:4},
+{jp:"責任",en:"responsibility",rank:6},
+{jp:"機会/好機",en:"opportunity",rank:6},
+{jp:"価値/価値観",en:"value",rank:5},
+{jp:"資源/資産",en:"resource",rank:4},
+{jp:"保護する/守る",en:"protect",rank:4},
+{jp:"減少する/減る",en:"decrease",rank:4},
+{jp:"増加する/増える",en:"increase",rank:4},
+{jp:"比較する/比べる",en:"compare",rank:6},
+{jp:"説明する/解説する",en:"explain",rank:5},
 
 {jp:"紫外線",en:"ultraviolet",rank:5},
-{jp:"経済", en:"economy", rank:5},
-{jp:"哲学", en:"philosophy", rank:5},
-{jp:"北極", en:"arctic", rank:5},
-{jp:"南極", en:"antarctic", rank:5},
-{jp:"発する", en:"emit", rank:5},
-{jp:"議定書", en:"protocol", rank:5},
-{jp:"浸食", en:"erosion", rank:5},
-{jp:"大災害", en:"catastrophe", rank:5},
-{jp:"干ばつ", en:"drought", rank:5},
-{jp:"湿った", en:"moist", rank:5},
-{jp:"浸す", en:"soak", rank:5},
+{jp:"経済",en:"economy",rank:5},
+{jp:"哲学",en:"philosophy",rank:5},
+{jp:"北極",en:"arctic",rank:5},
+{jp:"南極",en:"antarctic",rank:5},
+{jp:"発する/放出する",en:"emit",rank:5},
+{jp:"議定書",en:"protocol",rank:5},
+{jp:"浸食/侵食",en:"erosion",rank:5},
+{jp:"大災害",en:"catastrophe",rank:5},
+{jp:"干ばつ/旱魃",en:"drought",rank:5},
+{jp:"湿った",en:"moist",rank:5},
+{jp:"浸す/染み込ませる",en:"soak",rank:5},
+{jp:"噴火する/噴出する",en:"erupt",rank:5},
+{jp:"有限の/限りある",en:"finite",rank:5},
+{jp:"獲物/えじき",en:"prey",rank:5},
+{jp:"遺伝",en:"heredity",rank:5},
+{jp:"噛む",en:"bite",rank:5},
+{jp:"種/種子",en:"seed",rank:5},
+{jp:"無数の",en:"myriad",rank:5},
+{jp:"収穫する",en:"harvest",rank:5},
+{jp:"土壌",en:"soil",rank:5},
+{jp:"蒸気/水蒸気",en:"vapor",rank:5},
+{jp:"真空",en:"vacuum",rank:5},
+{jp:"浮く/漂う",en:"float",rank:5},
+{jp:"観察する",en:"observe",rank:5},
+{jp:"絶滅",en:"extinction",rank:5},
+{jp:"汚染",en:"pollution",rank:5},
+{jp:"洪水",en:"flood",rank:6},
+{jp:"地震",en:"earthquake",rank:4},
+{jp:"火山",en:"volcano",rank:5},
+{jp:"気候",en:"climate",rank:7},
+{jp:"酸素",en:"oxygen",rank:7},
+{jp:"二酸化炭素",en:"carbon dioxide",rank:6},
+{jp:"元素",en:"element",rank:5},
+{jp:"細胞",en:"cell",rank:4},
+{jp:"器官",en:"organ",rank:5},
+{jp:"遺伝子",en:"gene",rank:4},
+{jp:"化石",en:"fossil",rank:5},
+{jp:"種族",en:"species",rank:5},
+{jp:"表面",en:"surface",rank:5},
+{jp:"深さ",en:"depth",rank:4},
+{jp:"圧力",en:"pressure",rank:6},
+{jp:"摩擦",en:"friction",rank:5},
+{jp:"観測",en:"observation",rank:5},
+{jp:"証拠",en:"evidence",rank:5},
 
-{jp:"環境", en:"environment", rank:6},
-{jp:"文化", en:"culture", rank:6},
-{jp:"氷河", en:"glacier", rank:6},
-{jp:"潮", en:"tide", rank:6},
+{jp:"環境/自然環境",en:"environment",rank:6},
+{jp:"文化/文明",en:"culture",rank:6},
+{jp:"氷河",en:"glacier",rank:6},
+{jp:"潮",en:"tide",rank:6},
+{jp:"交互の/代わりの",en:"alternate",rank:6},
+{jp:"利益/利益を得る",en:"profit",rank:6},
+{jp:"肥沃な/豊かな",en:"fertile",rank:6},
+{jp:"再利用する",en:"recycle",rank:5},
+{jp:"保護する/保存する",en:"conserve",rank:5},
+{jp:"消費する/摂取する",en:"consume",rank:6},
+{jp:"排出する/解放する",en:"release",rank:5},
+{jp:"影響/衝撃",en:"impact",rank:5},
+{jp:"地域/地方",en:"region",rank:5},
+{jp:"大陸",en:"continent",rank:6},
+{jp:"移住する/移動する",en:"migrate",rank:6},
+{jp:"適応する/順応する",en:"adapt",rank:5},
+{jp:"特徴/機能",en:"feature",rank:7},
+{jp:"構造/仕組み",en:"structure",rank:5},
+{jp:"機能/関数",en:"function",rank:5},
+{jp:"化合物",en:"compound",rank:8},
+{jp:"反応/反響",en:"reaction",rank:6},
+{jp:"溶液/解決策",en:"solution",rank:5},
+{jp:"実験/試み",en:"experiment",rank:6},
+{jp:"理論/学説",en:"theory",rank:6},
+{jp:"分析する",en:"analyze",rank:5},
+{jp:"証明する/立証する",en:"prove",rank:4},
 
-{jp:"民主主義", en:"democracy", rank:7},
-{jp:"産業革命", en:"industrial revolution", rank:7},
-{jp:"予想する", en:"forecast", rank:7},
+{jp:"民主主義",en:"democracy",rank:7},
+{jp:"産業革命",en:"industrial revolution",rank:7},
+{jp:"予想する/予報する",en:"forecast",rank:7},
+{jp:"管/容器",en:"vessel",rank:7},
+{jp:"文明",en:"civilization",rank:8},
+{jp:"憲法/体質",en:"constitution",rank:7},
+{jp:"政府",en:"government",rank:5},
+{jp:"法律/法",en:"law",rank:5},
+{jp:"選挙",en:"election",rank:5},
+{jp:"革命",en:"revolution",rank:5},
+{jp:"植民地",en:"colony",rank:6},
+{jp:"独立",en:"independence",rank:6},
+{jp:"貿易/取引",en:"trade",rank:4},
+{jp:"通貨",en:"currency",rank:5},
+{jp:"金融",en:"finance",rank:7},
+{jp:"需要/要求",en:"demand",rank:6},
+{jp:"供給/供給すること",en:"supply",rank:6},
+{jp:"仮説",en:"hypothesis",rank:8},
+{jp:"放射線/放射能",en:"radiation",rank:7},
+{jp:"重力",en:"gravity",rank:6},
+{jp:"軌道/周回軌道",en:"orbit",rank:7},
+{jp:"銀河",en:"galaxy",rank:6},
+{jp:"宇宙",en:"universe",rank:5},
+{jp:"遺伝学",en:"genetics",rank:7},
+{jp:"天文学",en:"astronomy",rank:7},
+{jp:"生態系",en:"ecosystem",rank:6},
+{jp:"多様性",en:"diversity",rank:5},
+{jp:"エネルギー",en:"energy",rank:4},
+{jp:"物質",en:"matter",rank:6},
+{jp:"粒子",en:"particle",rank:6},
+{jp:"次元",en:"dimension",rank:6},
+{jp:"人工衛星",en:"satellite",rank:6},
+{jp:"惑星",en:"planet",rank:4},
+{jp:"銀河系",en:"milky way",rank:8},
 
-{jp:"相対性理論", en:"theory of relativity", rank:8},
-{jp:"量子力学", en:"quantum mechanics", rank:8},
+{jp:"相対性理論",en:"theory of relativity",rank:8},
+{jp:"量子力学",en:"quantum mechanics",rank:8},
+{jp:"認識論",en:"epistemology",rank:9},
+{jp:"決定論",en:"determinism",rank:9},
+{jp:"因果関係",en:"causality",rank:9},
+{jp:"知覚",en:"perception",rank:9},
+{jp:"理性",en:"reason",rank:7},
+{jp:"倫理",en:"ethics",rank:7},
+{jp:"道徳",en:"morality",rank:6},
+{jp:"抽象概念",en:"abstraction",rank:7},
+{jp:"主観",en:"subjectivity",rank:8},
+{jp:"客観",en:"objectivity",rank:8},
+{jp:"実在",en:"reality",rank:6},
+{jp:"特異点",en:"singularity",rank:7},
 
-{jp:"意識", en:"consciousness", rank:9},
-{jp:"存在論", en:"ontology", rank:9},
+{jp:"意識/自覚",en:"consciousness",rank:9},
+{jp:"存在論",en:"ontology",rank:9},
+{jp:"経験論",en:"empiricism",rank:8},
+{jp:"合理主義",en:"rationalism",rank:9},
+{jp:"弁証法",en:"dialectics",rank:10},
+{jp:"超越/超越性",en:"transcendence",rank:8},
+{jp:"本質/本性",en:"essence",rank:6},
+{jp:"現象学",en:"phenomenology",rank:10},
+{jp:"宇宙論",en:"cosmology",rank:6},
+{jp:"量子もつれ",en:"quantum entanglement",rank:10},
+{jp:"パラダイム/規範",en:"paradigm",rank:7},
 
-{jp:"形而上学", en:"metaphysics", rank:10},
-{jp:"超弦理論", en:"string theory", rank:10},
+{jp:"形而上学",en:"metaphysics",rank:10},
+{jp:"超弦理論",en:"string theory",rank:10},
+
 ];
 /* ===== 問題ランク別 レート変動（完全手動）===== */
 /*
@@ -679,8 +1080,13 @@ function pickWordByRateLimit(){
 
   Object.entries(band.ranks).forEach(([rank,data])=>{
 
-    const wordsOfRank =
-      words.filter(w=>w.rank===Number(rank));
+const wordsOfRank =
+  words
+    .map((w,i)=>({...w,index:i}))
+    .filter(w =>
+      w.rank===Number(rank) &&
+      !usedIndexes.includes(w.index)
+    );
 
     for(let i=0;i<data.weight;i++){
       weighted.push(
@@ -719,7 +1125,9 @@ function showScreen(id){
     .classList.add("active");
 
   if(id==="profile"){
-    homeBgm.play().catch(()=>{});
+   if(localStorage.getItem("sound")!=="off"){
+  homeBgm.play().catch(()=>{});
+}
   }
 }
 
@@ -798,20 +1206,55 @@ function saveSettings(){
 localStorage.setItem("username",nameInput.value||"Player");
 localStorage.setItem("authorType",authorType.value);
 localStorage.setItem("sound",soundToggle.checked?"on":"off");
+ const homeBgm =
+    document.getElementById("homeBgm");
+
+  const questionBgm =
+    document.getElementById("questionBgm");
+
+  if(localStorage.getItem("sound")==="off"){
+
+    homeBgm.pause();
+    homeBgm.currentTime = 0;
+
+    questionBgm.pause();
+    questionBgm.currentTime = 0;
+  }
 updateProfile();
 document.addEventListener("click", () => {
+if(localStorage.getItem("sound")!=="off"){
   homeBgm.play().catch(()=>{});
+}
 }, { once:true });
 showScreen("profile");
 }
+function showHelp(){
 
+  const text =
+    localStorage.getItem("authorType") ||
+    "説明はありません";
+
+  alert(text);
+
+}
 iconUpload.addEventListener("change",e=>{
 const f=e.target.files[0]; if(!f)return;
 const r=new FileReader();
 r.onload=x=>{localStorage.setItem("icon",x.target.result);icon.src=x.target.result;};
 r.readAsDataURL(f);
 });
+function playSe(id){
 
+  if(localStorage.getItem("sound")==="off") return;
+
+  const se=document.getElementById(id);
+
+  if(!se) return;
+
+  se.currentTime=0;
+
+  se.play().catch(()=>{});
+}
 function startGame(m){
 
   homeBgm.pause();
@@ -821,6 +1264,7 @@ function startGame(m){
   q=0;
   correct=0;
   pendingRate=0;
+  resultHistory=[];
   pendingRankRate=0; // ★ 
     usedIndexes = [];   // ★ 追加（毎回10問でリセット）
 
@@ -829,7 +1273,9 @@ function startGame(m){
 
   if(questionBgm){
     questionBgm.currentTime = 0;
-    questionBgm.play().catch(()=>{});
+  if(localStorage.getItem("sound")!=="off"){
+  questionBgm.play().catch(()=>{});
+}
   }
 
   mode=m;
@@ -843,7 +1289,10 @@ function startGame(m){
 
 function nextQuestion(){
 locked=false;
-if(q>=10)return finishGame();
+if(q>=10){
+  fadeToResult();
+  return;
+}
 console.log("rankRate =", rankRate);
 if(mode==="rank"){
 
@@ -913,16 +1362,21 @@ function checkAnswer(){
   const ok =
     answer.value.trim().toLowerCase() ===
     current.en.toLowerCase();
+    let changeValue=0;
 
-  if(mode === "rank"){
-    if(ok){
-      correct++;
-      pendingRankRate += 1;
-      msg.textContent = "⭕ 正解（ランク +1）";
-    }else{
-      pendingRankRate -= 1;
-      msg.textContent = "❌ 不正解（ランク -1）";
-    }
+if(mode === "rank"){
+  if(ok){
+    correct++;
+    pendingRankRate += 1;
+    changeValue = 1;
+    msg.textContent = "⭕ 正解（ランク +1）";
+    playSe("correctSe");
+  }else{
+    pendingRankRate -= 1;
+    changeValue = -1;
+    msg.textContent = "❌ 不正解（ランク -1）";
+    playSe("wrongSe");
+  }
   }else{
     const band = getCurrentBand();
     const rateSet = band.ranks[current.rank];
@@ -931,20 +1385,31 @@ function checkAnswer(){
       correct++;
       pendingRate += rateSet.correct;
       msg.textContent = "⭕ 正解（+" + rateSet.correct + "）";
+      changeValue = rateSet.correct;
+      playSe("correctSe");
     }else{
       pendingRate -= rateSet.miss;
       msg.textContent =
         "❌ 正解: " + current.en + "（-" + rateSet.miss + "）";
+        changeValue = -rateSet.miss;
+        playSe("wrongSe");
     }
   }
 
   // ★ ここが重要：存在確認
-  if(typeof nextQuestion === "function"){
-    setTimeout(nextQuestion, 400);
-  }else{
-    console.error("nextQuestion が未定義");
-    locked = false; // 応急処置
-  }
+resultHistory.push({
+  jp:current.jp,
+  en:current.en,
+  ok:ok,
+  change:changeValue
+});
+
+if(typeof nextQuestion === "function"){
+  setTimeout(nextQuestion, 400);
+}else{
+  console.error("nextQuestion が未定義");
+  locked = false;
+}
 }
 
 function skipQuestion(){
@@ -954,18 +1419,33 @@ function skipQuestion(){
 
   if(mode === "rank"){
     pendingRankRate -= 1;
+    resultHistory.push({
+  jp:current.jp,
+  en:current.en,
+  ok:false,
+  change:-1
+});
     msg.textContent = "スキップ（ランク -1）";
+    playSe("wrongSe");
   }else{
     const band = getCurrentBand();
     const rateSet = band.ranks[current.rank];
     pendingRate -= rateSet.miss;
+    resultHistory.push({
+  jp:current.jp,
+  en:current.en,
+  ok:false,
+  change:-rateSet.miss
+});
     msg.textContent = "スキップ（-" + rateSet.miss + "）";
+    playSe("wrongSe");
   }
 
   setTimeout(nextQuestion, 400);
 }
 
 async function finishGame(){
+console.log("resultHistory =", resultHistory);
 const questionBgm =
   document.getElementById("questionBgm");
 
@@ -1006,6 +1486,23 @@ if(mode==="rank"){
     "現在レート : " + rate;
 
 }
+let historyHtml="";
+
+resultHistory.forEach(r=>{
+
+historyHtml += `
+<div class="resultRow">
+ <span>${r.ok ? "⭕" : "❌"}</span>
+ <span>${r.jp}</span>
+ <span>${r.en}</span>
+ <span>${r.change>0 ? "+"+r.change : r.change}</span>
+</div>
+`;
+
+});
+
+document.getElementById("resultHistory").innerHTML=
+historyHtml;
 profileButton.innerHTML='<button onclick="backProfile()">プロフィールへ</button>';
 }
 
@@ -1053,19 +1550,28 @@ setInterval(spawnWord,1000);
 
 updateProfile();
 
-homeBgm.play().catch(()=>{});
+if(localStorage.getItem("sound")!=="off"){
+ if(localStorage.getItem("sound")!=="off"){
+  homeBgm.play().catch(()=>{});
+}
+}
+function fadeToResult(){
+
+  const fade =
+    document.getElementById("fadeScreen");
+
+  fade.style.opacity = "1";
+
+  setTimeout(()=>{
+    finishGame();
+    fade.style.opacity = "0";
+  },800);
+
+}
 </script>
 
 <audio id="homeBgm" loop>
   <source src="home.mp3" type="audio/mpeg">
-</audio>
-
-<audio id="correctSe">
-  <source src="col.mp3" type="audio/mpeg">
-</audio>
-
-<audio id="wrongSe">
-  <source src="def.mp3" type="audio/mpeg">
 </audio>
 
 </body>
