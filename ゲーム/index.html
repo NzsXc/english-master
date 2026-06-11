@@ -329,6 +329,15 @@ margin-top:40px;
 <div id="bgWords"></div>
 <div id="fadeScreen"></div>
 <div id="profile" class="screen active">
+<div id="rankingScreen" class="screen">
+  <h2>ランキング</h2>
+
+  <div id="rateRanking"></div>
+  <div id="rankRateRanking"></div>
+  <div id="userRankRanking"></div>
+
+  <button onclick="backProfile()">戻る</button>
+</div>
 <div class="card">
 <h1>英単語Master</h1>
 <div class="top">
@@ -371,6 +380,7 @@ margin-top:40px;
 
 <button onclick="showScreen('settings')">設定</button>
 <button onclick="showScreen('mode')">ゲームへ</button>
+<button onclick="showRanking()">ランキング</button>
 <button onclick="showScreen('help')">
 ヘルプ
 </button>
