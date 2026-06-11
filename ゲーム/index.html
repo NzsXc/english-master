@@ -1343,7 +1343,7 @@ async function showRanking(){
   let html="<h3>🏆総合レート</h3>";
 
   users.slice(0,10).forEach((u,i)=>{
-    html+=`${i+1}位 ${u[0]} ${u[1].rate}<br>`;
+   html += `${i+1}位 ${u[1].name} ${u[1].rate}<br>`;
   });
 
   document.getElementById("rankingView").innerHTML=html;
@@ -1613,12 +1613,13 @@ function skipQuestion(){
 
 async function uploadRanking(){
 
-  const username =
-    localStorage.getItem("username") || "Player";
+  const userId =
+    localStorage.getItem("userId");
 
   await fbSet(
-    fbRef(rtdb, "ranking/" + username),
+    fbRef(rtdb, "ranking/" + userId),
     {
+      name: localStorage.getItem("username") || "Player",
       rate: rate,
       rankRate: rankRate,
       userRank: getRank(),
@@ -1792,6 +1793,12 @@ window.fbRef = ref;
 window.fbSet = set;
 window.fbGet = get;
 window.fbChild = child;
+if(!localStorage.getItem("userId")){
+  localStorage.setItem(
+    "userId",
+    "u" + Date.now() + Math.floor(Math.random()*10000)
+  );
+}
 
 console.log("Firebase接続成功");
 fbSet(
