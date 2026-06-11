@@ -1616,16 +1616,16 @@ async function uploadRanking(){
   const userId =
     localStorage.getItem("userId");
 
-  await fbSet(
-    fbRef(rtdb, "ranking/" + userId),
-    {
-      name: localStorage.getItem("username") || "Player",
-      rate: rate,
-      rankRate: rankRate,
-      userRank: getRank(),
-      updated: Date.now()
-    }
-  );
+await fbSet(
+  fbRef(rtdb, "ranking/" + userId),
+  {
+    name: localStorage.getItem("username") || "Player",
+    rate: rate,
+    rankRate: rankRate,
+    userRank: getRank(),
+    updated: Date.now()
+  }
+);
 
   console.log("ランキング送信完了");
 }
