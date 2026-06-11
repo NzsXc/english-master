@@ -1317,7 +1317,28 @@ if(localStorage.getItem("sound")!=="off"){
 }, { once:true });
 showScreen("profile");
 }
-function showRanking(){
+async function showRanking(){
+
+  const snapshot = await fbGet(
+    fbRef(rtdb, "ranking")
+  );
+
+  const data = snapshot.val() || {};
+
+  const users = Object.entries(data);
+
+  const rateRank =
+    [...users].sort((a,b)=>b[1].rate-a[1].rate);
+
+  let html = "<h3>🏆 総合レート</h3>";
+
+  rateRank.slice(0,10).forEach((u,i)=>{
+    html += `${i+1}位 ${u[0]} ${u[1].rate}<br>`;
+  });
+
+  document.getElementById("rateRanking").innerHTML =
+    html;
+
   showScreen("rankingScreen");
 }
   function showHelp(){
