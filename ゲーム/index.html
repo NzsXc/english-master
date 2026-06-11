@@ -1657,6 +1657,36 @@ updateRateColor();
 <audio id="homeBgm" loop>
   <source src="home.mp3" type="audio/mpeg">
 </audio>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
 
+import {
+getDatabase,
+ref,
+set,
+get,
+child
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBr2VnCif6_nhLFdFdNxB0UvHdG_MDn_NY",
+  authDomain: "english-master-3cd28.firebaseapp.com",
+  databaseURL: "https://english-master-3cd28-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "english-master-3cd28",
+  storageBucket: "english-master-3cd28.firebasestorage.app",
+  messagingSenderId: "714690251389",
+  appId: "1:714690251389:web:ec8a70c95dbd32fe553f14"
+};
+
+const app = initializeApp(firebaseConfig);
+
+window.rtdb = getDatabase(app);
+window.fbRef = ref;
+window.fbSet = set;
+window.fbGet = get;
+window.fbChild = child;
+
+console.log("Firebase接続成功");
+</script>
 </body>
 </html>
