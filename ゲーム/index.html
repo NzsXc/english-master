@@ -1651,10 +1651,11 @@ setInterval(spawnWord,1000);
 
 updateProfile();
 
+const homeBgm =
+  document.getElementById("homeBgm");
+
 if(localStorage.getItem("sound")!=="off"){
- if(localStorage.getItem("sound")!=="off"){
-  homeBgm.play().catch(()=>{});
-}
+  homeBgm?.play().catch(()=>{});
 }
 function fadeToResult(){
 
