@@ -1566,8 +1566,9 @@ if(questionBgm){
 
   localStorage.setItem("xp",xp);
   localStorage.setItem("rankRate",rankRate);
+    console.log("uploadRanking呼び出し前");
     await uploadRanking();
-
+    
 showScreen("result");
 if(mode==="rank"){
 
