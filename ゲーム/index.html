@@ -1524,7 +1524,24 @@ function skipQuestion(){
   setTimeout(nextQuestion, 400);
 }
 
-async function finishGame(){
+async function uploadRanking(){
+
+  const username =
+    localStorage.getItem("username") || "Player";
+
+  await fbSet(
+    fbRef(rtdb, "ranking/" + username),
+    {
+      rate: rate,
+      rankRate: rankRate,
+      userRank: getRank(),
+      updated: Date.now()
+    }
+  );
+
+  console.log("ランキング送信完了");
+}
+  async function finishGame(){
 console.log("resultHistory =", resultHistory);
 const questionBgm =
   document.getElementById("questionBgm");
@@ -1549,6 +1566,7 @@ if(questionBgm){
 
   localStorage.setItem("xp",xp);
   localStorage.setItem("rankRate",rankRate);
+    await uploadRanking();
 
 showScreen("result");
 if(mode==="rank"){
