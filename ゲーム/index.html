@@ -380,11 +380,23 @@ margin-top:40px;
 <div id="rankingScreen" class="screen">
   <h2>ランキング</h2>
 
-  <div id="rateRanking"></div>
-  <div id="rankRateRanking"></div>
-  <div id="userRankRanking"></div>
+  <button onclick="showRateRanking()">
+    総合レート
+  </button>
 
-  <button onclick="backProfile()">戻る</button>
+  <button onclick="showRankRateRanking()">
+    ランクレート
+  </button>
+
+  <button onclick="showUserRankRanking()">
+    ユーザーランク
+  </button>
+
+  <div id="rankingView"></div>
+
+  <button onclick="showScreen('profile')">
+    戻る
+  </button>
 </div>
 <div id="settings" class="screen">
 <div class="card">
@@ -1318,24 +1330,65 @@ if(localStorage.getItem("sound")!=="off"){
 showScreen("profile");
 }
 async function showRanking(){
+  showScreen("rankingScreen");
+}
+  async function showRateRanking(){
 
-  const snapshot = await fbGet(
-    fbRef(rtdb, "ranking")
+  const users = await getRankingData();
+
+  users.sort((a,b)=>
+    b[1].rate-a[1].rate
   );
 
-  const data = snapshot.val() || {};
+  let html="<h3>🏆総合レート</h3>";
 
-  const users = Object.entries(data);
-
-  const rateRank =
-    [...users].sort((a,b)=>b[1].rate-a[1].rate);
-
-  let html = "<h3>🏆 総合レート</h3>";
-
-  rateRank.slice(0,10).forEach((u,i)=>{
-    html += `${i+1}位 ${u[0]} ${u[1].rate}<br>`;
+  users.slice(0,10).forEach((u,i)=>{
+    html+=`${i+1}位 ${u[0]} ${u[1].rate}<br>`;
   });
 
+  rankingView.innerHTML=html;
+}
+  async function showRankRateRanking(){
+
+  const users = await getRankingData();
+
+  users.sort((a,b)=>
+    b[1].rankRate-a[1].rankRate
+  );
+
+  let html="<h3>⭐ランクレート</h3>";
+
+  users.slice(0,10).forEach((u,i)=>{
+    html+=`${i+1}位 ${u[0]} ${u[1].rankRate}<br>`;
+  });
+
+  rankingView.innerHTML=html;
+}
+  async function showUserRankRanking(){
+
+  const users = await getRankingData();
+
+  users.sort((a,b)=>
+    b[1].userRank-a[1].userRank
+  );
+
+  let html="<h3>👑ユーザーランク</h3>";
+
+  users.slice(0,10).forEach((u,i)=>{
+    html+=`${i+1}位 ${u[0]} Lv.${u[1].userRank}<br>`;
+  });
+
+  rankingView.innerHTML=html;
+}
+  async function getRankingData(){
+
+  const snapshot =
+    await fbGet(fbRef(rtdb,"ranking"));
+
+  return Object.entries(
+    snapshot.val() || {}
+  );
+}
   document.getElementById("rateRanking").innerHTML =
     html;
 
