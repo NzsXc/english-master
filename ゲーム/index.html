@@ -1346,7 +1346,7 @@ async function showRanking(){
     html+=`${i+1}位 ${u[0]} ${u[1].rate}<br>`;
   });
 
-  rankingView.innerHTML=html;
+  document.getElementById("rankingView").innerHTML=html;
 }
   async function showRankRateRanking(){
 
@@ -1362,7 +1362,7 @@ async function showRanking(){
     html+=`${i+1}位 ${u[0]} ${u[1].rankRate}<br>`;
   });
 
-  rankingView.innerHTML=html;
+  document.getElementById("rankingView").innerHTML=html;
 }
   async function showUserRankRanking(){
 
@@ -1378,7 +1378,7 @@ async function showRanking(){
     html+=`${i+1}位 ${u[0]} Lv.${u[1].userRank}<br>`;
   });
 
-  rankingView.innerHTML=html;
+  document.getElementById("rankingView").innerHTML=html;
 }
   async function getRankingData(){
 
