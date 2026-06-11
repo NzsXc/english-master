@@ -1331,6 +1331,7 @@ showScreen("profile");
 }
 async function showRanking(){
   showScreen("rankingScreen");
+  showRateRanking();
 }
   async function showRateRanking(){
 
@@ -1342,9 +1343,9 @@ async function showRanking(){
 
   let html="<h3>🏆総合レート</h3>";
 
-  users.slice(0,10).forEach((u,i)=>{
-   html += `${i+1}位 ${u[1].name} ${u[1].rate}<br>`;
-  });
+users.slice(0,10).forEach((u,i)=>{
+  html += `${i+1}位 ${(u[1].name || "Player")} ${u[1].rate}<br>`;
+});
 
   document.getElementById("rankingView").innerHTML=html;
 }
@@ -1358,9 +1359,9 @@ async function showRanking(){
 
   let html="<h3>⭐ランクレート</h3>";
 
-  users.slice(0,10).forEach((u,i)=>{
-    html+=`${i+1}位 ${u[0]} ${u[1].rankRate}<br>`;
-  });
+users.slice(0,10).forEach((u,i)=>{
+  html += `${i+1}位 ${(u[1].name || "Player")} ${u[1].rankRate}<br>`;
+});
 
   document.getElementById("rankingView").innerHTML=html;
 }
@@ -1374,9 +1375,9 @@ async function showRanking(){
 
   let html="<h3>👑ユーザーランク</h3>";
 
-  users.slice(0,10).forEach((u,i)=>{
-    html+=`${i+1}位 ${u[0]} Lv.${u[1].userRank}<br>`;
-  });
+users.slice(0,10).forEach((u,i)=>{
+  html += `${i+1}位 ${(u[1].name || "Player")} Lv.${u[1].userRank}<br>`;
+});
 
   document.getElementById("rankingView").innerHTML=html;
 }
