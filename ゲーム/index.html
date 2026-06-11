@@ -1389,12 +1389,8 @@ async function showRanking(){
     snapshot.val() || {}
   );
 }
-  document.getElementById("rateRanking").innerHTML =
-    html;
 
-  showScreen("rankingScreen");
-}
-  function showHelp(){
+function showHelp(){
 
   const text =
     localStorage.getItem("authorType") ||
