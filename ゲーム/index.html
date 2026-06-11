@@ -1337,10 +1337,15 @@ function playSe(id){
 }
 function startGame(m){
 
-  homeBgm.pause();
-  homeBgm.currentTime = 0;
+  const homeBgm =
+    document.getElementById("homeBgm");
 
-    mode=m;
+  if(homeBgm){
+    homeBgm.pause();
+    homeBgm.currentTime = 0;
+  }
+
+  mode=m;
   q=0;
   correct=0;
   pendingRate=0;
