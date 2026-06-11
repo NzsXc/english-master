@@ -1318,7 +1318,10 @@ if(localStorage.getItem("sound")!=="off"){
 }, { once:true });
 showScreen("profile");
 }
-function showHelp(){
+function showRanking(){
+  showScreen("rankingScreen");
+}
+  function showHelp(){
 
   const text =
     localStorage.getItem("authorType") ||
