@@ -1881,6 +1881,13 @@ function loadTitles(){
     {name:"777", desc:"レート777に到達"},
     {name:"達人", desc:"レート1500到達"},
     {name:"神話級", desc:"レート2500到達"}
+    {name:"はじめの一歩", desc:"ブロンズランクに到達"},
+    {name:"銀の弾丸", desc:"シルバーランクに到達"},
+    {name:"黄金期", desc:"ゴールドランクに到達"},
+    {name:"p", desc:"プラチナランクに到達"},
+    {name:"l", desc:"レジェンドランクに到達"},
+    {name:"m", desc:"マスターランクに到達"},
+    {name:"i", desc:"イモータルランクに到達"},
   ];
 
   allTitles.forEach(title=>{
@@ -2286,11 +2293,12 @@ if(questionBgm){
   questionBgm.currentTime = 0;
 }
 
-  if(mode!=="rank"){
-    rate=Math.max(0,rate+pendingRate);
-    checkTitles();
-    localStorage.setItem("rate",rate);
-  }
+if(mode!=="rank"){
+  rate=Math.max(0,rate+pendingRate);
+  localStorage.setItem("rate",rate);
+}
+
+checkTitles();
 
   xp+=correct*10;
 
