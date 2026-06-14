@@ -1801,10 +1801,14 @@ let name = nameInput.value.trim();
 
   const regex = /^[ぁ-んァ-ヶー一-龠a-zA-Z0-9]+$/;
 
-  if(!regex.test(name)){
-    alert("使用できない文字があります");
-    return;
-  }
+if(!regex.test(name)){
+  const badChar = [...name].find(
+    c => !/^[ぁ-んァ-ヶー一-龠a-zA-Z0-9]$/.test(c)
+  );
+
+  alert(`「${badChar}」は使用できません`);
+  return;
+}
 
 localStorage.setItem("username",nameInput.value||"Player");
 localStorage.setItem("authorType",authorType.value);
