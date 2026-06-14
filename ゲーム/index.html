@@ -2006,7 +2006,15 @@ current = pickWordByRateLimit();
 if(!current) return;
 }
 if(!current) return;
-question.textContent=current.jp;
+
+const lengths = current.en
+  .split(" ")
+  .map(w => w.length)
+  .join(",");
+
+question.textContent =
+  `${current.jp} (${lengths})`;
+
 answer.value="";
 msg.textContent="";
 countView.textContent=q+1;
