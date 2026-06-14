@@ -407,6 +407,7 @@ margin-top:40px;
 <textarea id="authorType" placeholder="作者説明"></textarea><br><br>
 <button onclick="saveSettings()">保存</button>
 <button onclick="showScreen('profile')">戻る</button>
+<button onclick="openTitleMenu()">称号一覧</button>
 </div>
 </div>
 
@@ -431,7 +432,11 @@ margin-top:40px;
 <p><span id="countView">1</span>/10</p>
 </div>
 </div>
-
+<div id="titleMenu" class="screen">
+  <h2>称号一覧</h2>
+  <div id="titleList"></div>
+  <button onclick="closeTitleMenu()">戻る</button>
+</div>
 <div id="result" class="screen">
 <div class="card">
 <h2>結果</h2>
@@ -1727,6 +1732,8 @@ function updateProfile(){
 userName.textContent=localStorage.getItem("username")||"Player";
 nameInput.value=userName.textContent;
 rankNum.textContent=getRank();
+  document.getElementById("titleView").textContent =
+    localStorage.getItem("equippedTitle") || "見習い学習者";
 
 rateView.textContent=rate;
 rateBar.style.width=((rate%50)/50*100)+"%";
@@ -1809,7 +1816,6 @@ if(!regex.test(name)){
   alert(`「${badChar}」は使用できません`);
   return;
 }
-
 localStorage.setItem("username",nameInput.value||"Player");
 localStorage.setItem("authorType",authorType.value);
 localStorage.setItem("sound",soundToggle.checked?"on":"off");
@@ -1834,6 +1840,131 @@ if(localStorage.getItem("sound")!=="off"){
 }
 }, { once:true });
 showScreen("profile");
+}
+function openTitleMenu(){
+  showScreen("titleMenu");
+  loadTitles();
+}
+function loadTitles(){
+    if(!localStorage.getItem("titles")){
+  localStorage.setItem(
+    "titles",
+    JSON.stringify(["プレイヤー"])
+  );
+}
+
+  const titleList =
+    document.getElementById("titleList");
+
+  if(!titleList) return;
+
+  titleList.innerHTML = "";
+
+  const ownedTitles =
+    JSON.parse(localStorage.getItem("titles") || "[]");
+    if(!ownedTitles.includes("プレイヤー")){
+  ownedTitles.push("プレイヤー");
+
+  localStorage.setItem(
+    "titles",
+    JSON.stringify(ownedTitles)
+  );
+}
+  const equippedTitle =
+    localStorage.getItem("equippedTitle") || "";
+
+  const allTitles = [
+    {name:"プレイヤー", desc:"ゲームを開始する"},
+    {name:"英単語デビュー", desc:"レート501に到達"},
+    {name:"555", desc:"レート555に到達"},
+    {name:"777", desc:"レート777に到達"},
+    {name:"達人", desc:"レート1500到達"},
+    {name:"神話級", desc:"レート2500到達"}
+  ];
+
+  allTitles.forEach(title=>{
+
+    const owned =
+      ownedTitles.includes(title.name);
+
+    const div =
+      document.createElement("div");
+
+    if(owned){
+
+      div.innerHTML = `
+      ✓ 所持済み<br>
+      <b>${title.name}</b><br>
+      入手条件：${title.desc}<br>
+      `;
+
+      const btn =
+        document.createElement("button");
+
+      btn.textContent =
+        title.name === equippedTitle
+        ? "装備中"
+        : "装備する";
+
+      btn.onclick = ()=>{
+        localStorage.setItem(
+          "equippedTitle",
+          title.name
+        );
+         updateProfile(); // ←追加
+        loadTitles();
+      };
+
+      div.appendChild(btn);
+
+    }else{
+
+      div.style.opacity = "0.5";
+
+      div.innerHTML = `
+      🔒 未所持<br>
+      <b>${title.name}</b><br>
+      入手条件：${title.desc}
+      `;
+    }
+
+    titleList.appendChild(div);
+    titleList.appendChild(document.createElement("hr"));
+  });
+}
+function checkTitles(){
+
+  let titles = JSON.parse(
+    localStorage.getItem("titles") || '["プレイヤー"]'
+  );
+
+  if(rate >= 501 && !titles.includes("英単語デビュー")){
+    titles.push("英単語デビュー");
+    alert("称号『英単語デビュー』を獲得！");
+  }
+
+  if(rate >= 555 && !titles.includes("555")){
+    titles.push("555");
+    alert("称号『555』を獲得！");
+  }
+
+  if(rate >= 1500 && !titles.includes("達人")){
+    titles.push("達人");
+    alert("称号『達人』を獲得！");
+  }
+
+  if(rate >= 2500 && !titles.includes("神話級")){
+    titles.push("神話級");
+    alert("称号『神話級』を獲得！");
+  }
+
+  localStorage.setItem(
+    "titles",
+    JSON.stringify(titles)
+  );
+}
+function closeTitleMenu(){
+  showScreen("profile");
 }
 async function showRanking(){
   showScreen("rankingScreen");
@@ -2156,6 +2287,7 @@ if(questionBgm){
 
   if(mode!=="rank"){
     rate=Math.max(0,rate+pendingRate);
+    checkTitles();
     localStorage.setItem("rate",rate);
   }
 
