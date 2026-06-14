@@ -1792,6 +1792,20 @@ soundToggle.checked=localStorage.getItem("sound")!=="off";
 }
 
 function saveSettings(){
+let name = nameInput.value.trim();
+
+  if(name.length < 1 || name.length > 12){
+    alert("名前は1～12文字です");
+    return;
+  }
+
+  const regex = /^[ぁ-んァ-ヶー一-龠a-zA-Z0-9]+$/;
+
+  if(!regex.test(name)){
+    alert("使用できない文字があります");
+    return;
+  }
+
 localStorage.setItem("username",nameInput.value||"Player");
 localStorage.setItem("authorType",authorType.value);
 localStorage.setItem("sound",soundToggle.checked?"on":"off");
