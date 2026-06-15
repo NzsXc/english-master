@@ -2214,8 +2214,14 @@ if(mode === "rank"){
         "❌ 正解: " + current.en + "（-" + rateSet.miss + "）";
         changeValue = -rateSet.miss;
         playSe("wrongSe");
+      // checkAnswer の最後
     }
   }
+  if(q >= 10){
+  setTimeout(finishGame, 400);
+}else{
+  setTimeout(nextQuestion, 400);
+}
 
   // ★ ここが重要：存在確認
 resultHistory.push({
@@ -2261,8 +2267,13 @@ function skipQuestion(){
     msg.textContent = "スキップ（-" + rateSet.miss + "）";
     playSe("wrongSe");
   }
+  // skipQuestion の最後
 
+if(q >= 10){
+  setTimeout(finishGame, 400);
+}else{
   setTimeout(nextQuestion, 400);
+}
 }
 
 async function uploadRanking(){
@@ -2412,7 +2423,7 @@ function fadeToResult(){
   setTimeout(()=>{
     finishGame();
     fade.style.opacity = "0";
-  },800);
+  },500);
 
 }
 updateRateColor();
