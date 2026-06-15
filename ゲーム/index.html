@@ -426,8 +426,8 @@ margin-top:40px;
 <div class="card">
 <h2 id="question"></h2>
 <input id="answer"><br><br>
-<button onclick="checkAnswer()">回答</button>
-<button onclick="skipQuestion()">わからない</button>
+<button id="answerBtn" onclick="checkAnswer()">回答</button>
+<button id="skipBtn" onclick="skipQuestion()">わからない</button>
 <p id="msg"></p>
 <p><span id="countView">1</span>/10</p>
 </div>
@@ -2101,7 +2101,10 @@ function startGame(m){
 }
 
 function nextQuestion(){
-locked=false;
+locked = false;
+
+document.getElementById("answerBtn").disabled = false;
+document.getElementById("skipBtn").disabled = false;
 if(q>=10){
   fadeToResult();
   return;
@@ -2176,9 +2179,11 @@ countView.textContent=q+1;
 }
 
 function checkAnswer(){
-  if(locked) return;
-  locked = true;
-  q++;
+if(locked) return;
+locked = true;
+
+document.getElementById("answerBtn").disabled = true;
+document.getElementById("skipBtn").disabled = true;
 
   const ok =
     answer.value.trim().toLowerCase() ===
@@ -2240,9 +2245,11 @@ if(typeof nextQuestion === "function"){
 }
 
 function skipQuestion(){
-  if(locked) return;
-  locked = true;
-  q++;
+if(locked) return;
+locked = true;
+
+document.getElementById("answerBtn").disabled = true;
+document.getElementById("skipBtn").disabled = true;
 
   if(mode === "rank"){
     pendingRankRate -= 1;
