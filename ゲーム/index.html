@@ -279,15 +279,24 @@ margin-top:40px;
 /* 1100〜（紫） */
 .rate-9 { color:#8805d4; }
 .rank-card{
-  display:flex;
-  align-items:center;
-  border:2px solid #333;
-  border-radius:15px;
-  padding:12px 18px;
-  margin:8px 0;
-  background:white;
-}
+    display:flex;
+    align-items:center;
+    border:2px solid #333;
+    border-radius:15px;
+    padding:12px 18px;
+    margin:8px 0;
+    opacity:1;
+    background:#fff;
+    position:relative;
+    z-index:10;
+    box-shadow:
+      0 4px 12px rgba(0,0,0,.25);
 
+    transition:transform 0.15s;
+}
+.rank-card:active{
+  transform:scale(0.97);
+}
 .rank-icon{
   width:50px;
   height:50px;
@@ -316,6 +325,91 @@ margin-top:40px;
   width:70px;
   text-align:right;
   flex-shrink:0;
+}
+#playerCardOverlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+
+#playerCardOverlay.show{
+  display:flex;
+}
+
+#playerCard{
+
+  width:min(90vw,420px);
+  min-height:550px;
+
+    background:#111;
+  color:white;
+
+  background:#111;
+  border:3px solid #fff;
+  border-radius:20px;
+
+  padding:20px;
+
+  position:relative;
+
+  transform:scale(.05);
+  opacity:0;
+
+  transition:
+    transform .35s ease,
+    opacity .35s ease;
+}
+
+#playerCard.open{
+  transform:scale(1);
+  opacity:1;
+}
+
+#cardIcon{
+  width:120px;
+  height:120px;
+  border-radius:50%;
+  display:block;
+  margin:auto;
+  object-fit:cover;
+}
+
+#cardName{
+  text-align:center;
+  margin:10px 0;
+}
+
+#cardTitle{
+  text-align:center;
+  margin-bottom:15px;
+  color:gold;
+}
+
+.cardStat{
+  display:flex;
+  justify-content:space-between;
+  margin:8px 0;
+}
+
+#cardBio{
+  margin-top:20px;
+  padding:10px;
+  border:1px solid #666;
+  border-radius:10px;
+  min-height:80px;
+  white-space:pre-wrap;
+  word-break:break-word;
+  overflow-wrap:anywhere;
+}
+
+.closeCard{
+  position:absolute;
+  right:10px;
+  top:10px;
 }
 </style>
 </head>
@@ -437,13 +531,53 @@ margin-top:40px;
     戻る
   </button>
 </div>
+<div id="playerCardOverlay">
+
+  <div id="playerCard">
+
+    <button class="closeCard"
+      onclick="closePlayerCard()">✕</button>
+
+    <img id="cardIcon">
+
+    <h2 id="cardName"></h2>
+
+    <div id="cardTitle"></div>
+
+    <div class="cardStat">
+      レート
+      <span id="cardRate"></span>
+    </div>
+
+    <div class="cardStat">
+      ランク
+      <span id="cardRank"></span>
+    </div>
+
+    <div class="cardStat">
+      ランクレート
+      <span id="cardRankRate"></span>
+    </div>
+
+    <div class="cardStat">
+      累計正解数
+      <span id="cardTotal"></span>
+    </div>
+
+    <div id="cardBio"></div>
+
+  </div>
+
+</div>
 <div id="settings" class="screen">
 <div class="card">
 <h2>設定</h2>
 <input id="nameInput" placeholder="ユーザー名"><br><br>
 <input type="file" id="iconUpload"><br><br>
 <label><input type="checkbox" id="soundToggle"> 効果音ON/OFF</label><br><br>
-<textarea id="authorType" placeholder="作者説明"></textarea><br><br>
+<textarea id="authorType"
+          placeholder="自己紹介"
+          maxlength="40"></textarea><br><br>
 <button onclick="saveSettings()">保存</button>
 <button onclick="showScreen('profile')">戻る</button>
 <button onclick="openTitleMenu()">称号一覧</button>
@@ -1163,7 +1297,6 @@ const words=[
 {jp:"夢",en:"dream",rank:3},
 
 {jp:"宿題",en:"homework",rank:2},
-{jp:"試験",en:"test",rank:2},
 {jp:"授業",en:"class",rank:2},
 {jp:"教科書",en:"textbook",rank:3},
 {jp:"ノート",en:"notebook",rank:2},
@@ -1384,7 +1517,6 @@ const words=[
 {jp:"地面",en:"ground",rank:3},
 {jp:"床",en:"floor",rank:3},
 
-{jp:"空(大気)",en:"sky",rank:2},
 {jp:"宇宙",en:"space",rank:3},
 
 {jp:"場所(一般)",en:"place",rank:2},
@@ -1441,7 +1573,7 @@ const words=[
 {jp:"犯罪",en:"crime",rank:5},
 {jp:"刑務所",en:"jail",rank:6},
 {jp:"違反/反則",en:"violation",rank:5},
-{jp:"実り多い",en:"fluitful",rank:5},
+{jp:"実り多い",en:"fruitful",rank:5},
 {jp:"統合する/合成する",en:"synthesize",rank:7},
 {jp:"集中的な",en:"intensive",rank:6},
 {jp:"目新しい/小説",en:"novel",rank:4},
@@ -1856,6 +1988,12 @@ if(!regex.test(name)){
   alert(`「${badChar}」は使用できません`);
   return;
 }
+  const bio = authorType.value.trim();
+
+  if(bio.length > 40){
+    alert("自己紹介は40文字以内です");
+    return;
+  }
 localStorage.setItem("username",nameInput.value||"Player");
 localStorage.setItem("authorType",authorType.value);
 localStorage.setItem("sound",soundToggle.checked?"on":"off");
@@ -2004,6 +2142,42 @@ function checkTitles(){
     titles.push("神話級");
     alert("称号『神話級』を獲得！");
   }
+  const rr = getRankRank();
+
+if(rr >= 1 && !titles.includes("はじめの一歩")){
+  titles.push("はじめの一歩");
+  alert("称号『はじめの一歩』を獲得！");
+}
+
+if(rr >= 2 && !titles.includes("銀の弾丸")){
+  titles.push("銀の弾丸");
+  alert("称号『銀の弾丸』を獲得！");
+}
+
+if(rr >= 3 && !titles.includes("黄金期")){
+  titles.push("黄金期");
+  alert("称号『黄金期』を獲得！");
+}
+
+if(rr >= 4 && !titles.includes("p")){
+  titles.push("p");
+  alert("称号『p』を獲得！");
+}
+
+if(rr >= 5 && !titles.includes("l")){
+  titles.push("l");
+  alert("称号『l』を獲得！");
+}
+
+if(rr >= 6 && !titles.includes("m")){
+  titles.push("m");
+  alert("称号『m』を獲得！");
+}
+
+if(rr >= 7 && !titles.includes("i")){
+  titles.push("i");
+  alert("称号『i』を獲得！");
+}
 
   localStorage.setItem(
     "titles",
@@ -2029,7 +2203,8 @@ async function showRanking(){
 
 users.slice(0,10).forEach((u,i)=>{
   html += `
-<div class="rank-card">
+<div class="rank-card"
+onclick="openPlayerCard('${u[0]}')">
   <div class="rank-icon">
   <img src="${u[1].icon || ''}">
 </div>
@@ -2057,7 +2232,8 @@ users.slice(0,10).forEach((u,i)=>{
 
 users.slice(0,10).forEach((u,i)=>{
   html += `
-<div class="rank-card">
+<div class="rank-card"
+onclick="openPlayerCard('${u[0]}')">
   <div class="rank-icon">
   <img src="${u[1].icon || ''}">
 </div>
@@ -2085,7 +2261,8 @@ users.slice(0,10).forEach((u,i)=>{
 
 users.slice(0,10).forEach((u,i)=>{
  html += `
-<div class="rank-card">
+<div class="rank-card"
+onclick="openPlayerCard('${u[0]}')">
   <div class="rank-icon">
   <img src="${u[1].icon || ''}">
 </div>
@@ -2110,7 +2287,71 @@ users.slice(0,10).forEach((u,i)=>{
     snapshot.val() || {}
   );
 }
+function rankNameFromRate(rr){
 
+  if(rr >= 300) return "イモータル";
+  if(rr >= 250) return "マスター";
+  if(rr >= 200) return "レジェンド";
+  if(rr >= 150) return "プラチナ";
+  if(rr >= 100) return "ゴールド";
+  if(rr >= 50) return "シルバー";
+
+  return "ブロンズ";
+}
+
+async function openPlayerCard(userId){
+
+  const users =
+    await getRankingData();
+
+  const target =
+    users.find(u => u[0] === userId);
+
+  if(!target) return;
+
+  const data = target[1];
+
+  cardIcon.src =
+    data.icon || "";
+
+  cardName.textContent =
+    data.name || "Player";
+
+  cardTitle.textContent =
+    data.title || "称号なし";
+
+  cardRate.textContent =
+    data.rate || 0;
+
+  cardRankRate.textContent =
+    data.rankRate || 0;
+
+  cardRank.textContent =
+    rankNameFromRate(
+      data.rankRate || 0
+    );
+
+cardTotal.textContent =
+  data.totalCorrect || 0;
+
+  cardBio.textContent =
+    data.author || "自己紹介なし";
+
+  playerCardOverlay.classList.add("show");
+
+  setTimeout(()=>{
+    playerCard.classList.add("open");
+  },100);
+}
+
+function closePlayerCard(){
+
+  playerCard.classList.remove("open");
+
+  setTimeout(()=>{
+    playerCardOverlay.classList.remove("show");
+  },350);
+}
 function showHelp(){
 
   const text =
@@ -2365,7 +2606,14 @@ await fbSet(
     icon: localStorage.getItem("icon") || "",
     rankRate: rankRate,
     userRank: getRank(),
+    totalCorrect:
+        Number(localStorage.getItem("totalCorrect") || 0),
+    author:
+      localStorage.getItem("authorType") || "",
+    title:
+  localStorage.getItem("equippedTitle") || "プレイヤー",
     updated: Date.now()
+    
   }
 );
 
@@ -2386,16 +2634,27 @@ if(mode!=="rank"){
   localStorage.setItem("rate",rate);
 }
 
-checkTitles();
+let totalCorrect =
+  Number(localStorage.getItem("totalCorrect") || 0);
 
-  xp+=correct*10;
+totalCorrect += correct;
 
-  if(mode === "rank"){
+localStorage.setItem(
+  "totalCorrect",
+  totalCorrect
+);
+
+xp += correct * 10;
+
+if(mode === "rank"){
   rankRate += pendingRankRate;
+
   if(rankRate < 0) rankRate = 0;
+
   localStorage.setItem("rankRate", rankRate);
 }
 
+checkTitles();
   localStorage.setItem("xp",xp);
   localStorage.setItem("rankRate",rankRate);
     console.log("uploadRanking呼び出し前");
