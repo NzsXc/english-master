@@ -2287,16 +2287,17 @@ onclick="openPlayerCard('${u[0]}')">
     snapshot.val() || {}
   );
 }
-function rankNameFromRate(rr){
+function getRankNameByRate(rr){
 
-  if(rr >= 300) return "イモータル";
-  if(rr >= 250) return "マスター";
-  if(rr >= 200) return "レジェンド";
-  if(rr >= 150) return "プラチナ";
-  if(rr >= 100) return "ゴールド";
-  if(rr >= 50) return "シルバー";
+  let rank = rankRanks[0].name;
 
-  return "ブロンズ";
+  for(const r of rankRanks){
+    if(rr >= r.min){
+      rank = r.name;
+    }
+  }
+
+  return rank;
 }
 
 async function openPlayerCard(userId){
@@ -2326,10 +2327,10 @@ async function openPlayerCard(userId){
   cardRankRate.textContent =
     data.rankRate || 0;
 
-  cardRank.textContent =
-    rankNameFromRate(
-      data.rankRate || 0
-    );
+cardRank.textContent =
+  getRankNameByRate(
+    data.rankRate || 0
+  );
 
 cardTotal.textContent =
   data.totalCorrect || 0;
