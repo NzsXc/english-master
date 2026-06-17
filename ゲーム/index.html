@@ -286,6 +286,8 @@ margin-top:40px;
     padding:12px 18px;
     margin:8px 0;
     opacity:1;
+    width:100%;
+  box-sizing:border-box;
     background:#fff;
     position:relative;
     z-index:10;
@@ -315,6 +317,7 @@ margin-top:40px;
   flex:1;
   margin-left:15px;
   text-align:left;
+  min-width:0;
 
   overflow:hidden;
   text-overflow:ellipsis;
@@ -451,10 +454,11 @@ margin-top:40px;
 <audio id="correctSe">
   <source src="col.mp3" type="audio/mpeg">
 </audio>
-
 <audio id="wrongSe">
   <source src="def.mp3" type="audio/mpeg">
 </audio>
+<audio id="clickSound" src="click.mp3"></audio>
+<audio id="profileSound" src="profile.mp3"></audio>
 <audio id="questionBgm" loop>
   <source src="que.mp3" type="audio/mpeg">
 </audio>
@@ -681,6 +685,7 @@ function updateRateColor(){
     box.innerHTML = `
       ランクモードのランクは全部で8種類で、ビギナーからのスタートです。<br>
       プロフィールの変更をランキングに反映するためには、1ゲームプレイする必要があります。<br>
+      問題文の右側にある（数字）は、正解の単語の文字数を示しています。<br>
     `;
 
   }
@@ -692,7 +697,7 @@ function updateRateColor(){
       ・6/9ランクモード追加、レートシステム追加<br>
       ・6/10リザルト画面のアップデート<br>
       ・6/11ランキング機能追加、レートシステムのアップデート<br>
-      ・6/14称号追加
+      ・6/14称号追加<br>
       ・6/16ランキング機能の追加アップデート
     `;
 
@@ -1594,34 +1599,34 @@ const rateBands = [
 {
 min:0,max:499,
 ranks:{
-1:{weight:30,correct:2,miss:2},
-2:{weight:30,correct:2,miss:1},
-3:{weight:20,correct:2,miss:0},
-4:{weight:10,correct:3,miss:0},
-5:{weight:10,correct:4,miss:0},
+1:{weight:30,correct:3,miss:3},
+2:{weight:30,correct:4,miss:2},
+3:{weight:20,correct:4,miss:2},
+4:{weight:10,correct:5,miss:1},
+5:{weight:10,correct:6,miss:0},
 }
 },
 
 {
 min:500,max:599,
 ranks:{
-1:{weight:20,correct:2,miss:2},
-2:{weight:20,correct:2,miss:1},
-3:{weight:40,correct:3,miss:1},
-4:{weight:10,correct:3,miss:0},
-5:{weight:10,correct:3,miss:0},
+1:{weight:20,correct:3,miss:3},
+2:{weight:20,correct:3,miss:2},
+3:{weight:40,correct:4,miss:2},
+4:{weight:10,correct:4,miss:1},
+5:{weight:10,correct:5,miss:0},
 }
 },
 
 {
 min:600,max:699,
 ranks:{
-1:{weight:10,correct:2,miss:3},
-2:{weight:25,correct:2,miss:1},
+1:{weight:10,correct:3,miss:3},
+2:{weight:25,correct:3,miss:2},
 3:{weight:30,correct:3,miss:1},
-4:{weight:20,correct:3,miss:0},
-5:{weight:10,correct:3,miss:0},
-6:{weight:5,correct:3,miss:0},
+4:{weight:20,correct:4,miss:1},
+5:{weight:10,correct:4,miss:1},
+6:{weight:5,correct:4,miss:0},
 }
 },
 
@@ -1629,8 +1634,8 @@ ranks:{
 min:700,max:799,
 ranks:{
 1:{weight:10,correct:1,miss:3},
-2:{weight:25,correct:2,miss:2},
-3:{weight:25,correct:2,miss:1},
+2:{weight:25,correct:3,miss:3},
+3:{weight:25,correct:3,miss:2},
 4:{weight:20,correct:3,miss:1},
 5:{weight:10,correct:3,miss:0},
 6:{weight:5,correct:3,miss:0},
@@ -1899,7 +1904,7 @@ function showScreen(id){
   }
 }
 
-function rankNeed(l){if(l==1)return 10;if(l==2)return 15;if(l==3)return 25;return Math.floor(10+l*l*1.5)}
+function rankNeed(l){if(l==1)return 10;if(l==2)return 15;if(l==3)return 25;return Math.floor(10+l*l*1.0)}
 function getRank(){let lv=1,t=xp;while(t>=rankNeed(lv)){t-=rankNeed(lv);lv++}return lv}
 
 function updateProfile(){
@@ -2063,10 +2068,10 @@ function loadTitles(){
     {name:"はじめの一歩", desc:"ブロンズランクに到達"},
     {name:"銀の弾丸", desc:"シルバーランクに到達"},
     {name:"黄金期", desc:"ゴールドランクに到達"},
-    {name:"p", desc:"プラチナランクに到達"},
-    {name:"l", desc:"レジェンドランクに到達"},
-    {name:"m", desc:"マスターランクに到達"},
-    {name:"i", desc:"イモータルランクに到達"},
+    {name:"白金の先駆者", desc:"プラチナランクに到達"},
+    {name:"生ける伝説", desc:"レジェンドランクに到達"},
+    {name:"EnglishMaster", desc:"マスターランクに到達"},
+    {name:"語彙の覇王", desc:"イモータルランクに到達"},
   ];
 
   allTitles.forEach(title=>{
@@ -2134,7 +2139,10 @@ function checkTitles(){
     titles.push("555");
     alert("称号『555』を獲得！");
   }
-
+　  if(rate >= 777 && !titles.includes("777")){
+    titles.push("777");
+    alert("称号『777』を獲得！");
+  }
   if(rate >= 1500 && !titles.includes("達人")){
     titles.push("達人");
     alert("称号『達人』を獲得！");
@@ -2161,24 +2169,24 @@ if(rr >= 3 && !titles.includes("黄金期")){
   alert("称号『黄金期』を獲得！");
 }
 
-if(rr >= 4 && !titles.includes("p")){
-  titles.push("p");
-  alert("称号『p』を獲得！");
+if(rr >= 4 && !titles.includes("白金の先駆者")){
+  titles.push("白金の先駆者");
+  alert("称号『白金の先駆者』を獲得！");
 }
 
-if(rr >= 5 && !titles.includes("l")){
-  titles.push("l");
-  alert("称号『l』を獲得！");
+if(rr >= 5 && !titles.includes("生ける伝説")){
+  titles.push("生ける伝説");
+  alert("称号『生ける伝説』を獲得！");
 }
 
-if(rr >= 6 && !titles.includes("m")){
-  titles.push("m");
-  alert("称号『m』を獲得！");
+if(rr >= 6 && !titles.includes("EnglishMaster")){
+  titles.push("EnglishMaster");
+  alert("称号『EnglishMaster』を獲得！");
 }
 
-if(rr >= 7 && !titles.includes("i")){
-  titles.push("i");
-  alert("称号『i』を獲得！");
+if(rr >= 7 && !titles.includes("語彙の覇王")){
+  titles.push("語彙の覇王");
+  alert("称号『語彙の覇王』を獲得！");
 }
 
   localStorage.setItem(
@@ -2206,7 +2214,7 @@ async function showRanking(){
 users.slice(0,10).forEach((u,i)=>{
   html += `
 <div class="rank-card"
-onclick="openPlayerCard('${u[0]}')">
+onclick="playProfileSound();tapRankCard(this,'${u[0]}')">
   <div class="rank-icon">
   <img src="${u[1].icon || ''}">
 </div>
@@ -2235,7 +2243,7 @@ onclick="openPlayerCard('${u[0]}')">
 users.slice(0,10).forEach((u,i)=>{
   html += `
 <div class="rank-card"
-onclick="openPlayerCard('${u[0]}')">
+onclick="playProfileSound();tapRankCard(this,'${u[0]}')">
   <div class="rank-icon">
   <img src="${u[1].icon || ''}">
 </div>
@@ -2264,7 +2272,7 @@ onclick="openPlayerCard('${u[0]}')">
 users.slice(0,10).forEach((u,i)=>{
  html += `
 <div class="rank-card"
-onclick="openPlayerCard('${u[0]}')">
+onclick="playProfileSound();tapRankCard(this,'${u[0]}')">
   <div class="rank-icon">
   <img src="${u[1].icon || ''}">
 </div>
@@ -2346,7 +2354,16 @@ cardTotal.textContent =
     playerCard.classList.add("open");
   },100);
 }
+function tapRankCard(card, uid){
 
+  card.style.transform = "scale(0.95)";
+
+  setTimeout(() => {
+    card.style.transform = "";
+    openPlayerCard(uid);
+  }, 120);
+
+}
 function closePlayerCard(){
 
   playerCard.classList.remove("open");
@@ -2354,6 +2371,25 @@ function closePlayerCard(){
   setTimeout(()=>{
     playerCardOverlay.classList.remove("show");
   },350);
+}
+function playClickSound(){
+  if(localStorage.getItem("sound")==="off") return;
+
+  const audio =
+    document.getElementById("clickSound");
+
+  audio.currentTime = 0;
+  audio.play();
+}
+
+function playProfileSound(){
+  if(localStorage.getItem("sound")==="off") return;
+
+  const audio =
+    document.getElementById("profileSound");
+
+  audio.currentTime = 0;
+  audio.play();
 }
 function showHelp(){
 
@@ -2766,6 +2802,16 @@ function fadeToResult(){
 
 }
 updateRateColor();
+
+document.addEventListener("click",(e)=>{
+
+  if(localStorage.getItem("sound")==="off") return;
+
+  if(e.target.tagName!=="BUTTON") return;
+
+  playClickSound();
+
+});
 </script>
 
 <audio id="homeBgm" loop>
