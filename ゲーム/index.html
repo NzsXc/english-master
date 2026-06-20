@@ -2229,6 +2229,21 @@ if(!regex.test(name)){
   }
 localStorage.setItem("username",nameInput.value||"Player");
 localStorage.setItem("authorType",authorType.value);
+let comment = authorType.value.trim();
+
+let titles =
+  JSON.parse(localStorage.getItem("titles") || '["プレイヤー"]');
+if(
+  comment === "mathmaster" &&
+  !titles.includes("数学マスター")
+){
+  titles.push("数学マスター");
+  alert("称号『数学マスター』を獲得！");
+  localStorage.setItem(
+    "titles",
+    JSON.stringify(titles)
+  );
+}
 localStorage.setItem("sound",soundToggle.checked?"on":"off");
  const homeBgm =
     document.getElementById("homeBgm");
@@ -2289,6 +2304,7 @@ function loadTitles(){
     {name:"英単語デビュー", desc:"レート501に到達"},
     {name:"555", desc:"レート555に到達"},
     {name:"777", desc:"レート777に到達"},
+    {name:"1111", desc:"レート1111に到達"},
     {name:"帰国子女", desc:"レート1500到達"},
     {name:"神話級", desc:"レート2500到達"},
     {name:"はじめの一歩", desc:"ブロンズランクに到達"},
@@ -2298,6 +2314,7 @@ function loadTitles(){
     {name:"生ける伝説", desc:"レジェンドランクに到達"},
     {name:"EnglishMaster", desc:"マスターランクに到達"},
     {name:"語彙の覇王", desc:"イモータルランクに到達"},
+    {name:"数学マスター", desc:"mathmasterとプロフィールに入力し、保存する"}
   ];
 
   allTitles.forEach(title=>{
@@ -2369,6 +2386,10 @@ function checkTitles(){
     titles.push("777");
     alert("称号『777』を獲得！");
   }
+  if(rate >= 1111 && !titles.includes("1111")){
+    titles.push("1111");
+    alert("称号『1111』を獲得！");
+  }
   if(rate >= 1500 && !titles.includes("帰国子女")){
     titles.push("帰国子女");
     alert("称号『帰国子女』を獲得！");
@@ -2414,7 +2435,13 @@ if(rr >= 7 && !titles.includes("語彙の覇王")){
   titles.push("語彙の覇王");
   alert("称号『語彙の覇王』を獲得！");
 }
-
+if(
+  authorType.value.trim() === "mathmaster" &&
+  !titles.includes("数学マスター")
+){
+  titles.push("数学マスター");
+  alert("称号『数学マスター』を獲得！");
+}
   localStorage.setItem(
     "titles",
     JSON.stringify(titles)
