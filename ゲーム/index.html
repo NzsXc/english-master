@@ -2289,7 +2289,7 @@ function loadTitles(){
     {name:"英単語デビュー", desc:"レート501に到達"},
     {name:"555", desc:"レート555に到達"},
     {name:"777", desc:"レート777に到達"},
-    {name:"達人", desc:"レート1500到達"},
+    {name:"帰国子女", desc:"レート1500到達"},
     {name:"神話級", desc:"レート2500到達"},
     {name:"はじめの一歩", desc:"ブロンズランクに到達"},
     {name:"銀の弾丸", desc:"シルバーランクに到達"},
@@ -2369,9 +2369,9 @@ function checkTitles(){
     titles.push("777");
     alert("称号『777』を獲得！");
   }
-  if(rate >= 1500 && !titles.includes("達人")){
-    titles.push("達人");
-    alert("称号『達人』を獲得！");
+  if(rate >= 1500 && !titles.includes("帰国子女")){
+    titles.push("帰国子女");
+    alert("称号『帰国子女』を獲得！");
   }
 
   if(rate >= 2500 && !titles.includes("神話級")){
