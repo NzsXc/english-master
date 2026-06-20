@@ -2206,8 +2206,8 @@ soundToggle.checked=localStorage.getItem("sound")!=="off";
 function saveSettings(){
 let name = nameInput.value.trim();
 
-  if(name.length < 1 || name.length > 12){
-    alert("名前は1～12文字です");
+  if(name.length < 1 || name.length > 10){
+    alert("名前は1～10文字です");
     return;
   }
 
