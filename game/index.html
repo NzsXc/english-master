@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="google-site-verification" content="VmoHGkew9YixJCY6_gTrhPTekj4eKYKDvZ9lK_Ax06o" />
@@ -227,7 +228,7 @@ margin-top:40px;
 }
 
 .rankCell{
-  height:18px;
+  height:20px;
   background:#ddd;
   border-radius:4px;
 }
@@ -285,11 +286,11 @@ margin-top:40px;
   border:2px solid #333;
   border-radius:15px;
 
-  padding:10px 15px;
+  padding:18px 15px;
   margin:8px 0;
 
   width:100%;
-  min-height:60px;
+  min-height:80px;
 
   box-sizing:border-box;
   overflow:hidden;
@@ -384,9 +385,11 @@ margin-top:40px;
 
 .rank-name{
   flex:1;
-  margin-left:15px;
+  margin-left:40px;
   text-align:left;
   min-width:0;
+   font-weight:1000;
+   font-size:20px;
 
   overflow:hidden;
   text-overflow:ellipsis;
@@ -403,10 +406,11 @@ margin-top:40px;
 }
 
 .rank-card .rank-icon-img{
-  width:32px;
-  height:32px;
-  max-width:32px;
-  max-height:32px;
+  width:60px;
+  height:60px;
+  margin-left:15px;
+  max-width:60px;
+  max-height:60px;
   object-fit:cover;
   border-radius:50%;
   display:block;
@@ -415,6 +419,13 @@ margin-top:40px;
   width:70px;
   text-align:right;
   flex-shrink:0;
+    font-family:'Bungee', cursive;
+  font-size:25px;
+   text-shadow:
+    -2px -2px 0 #00000013,
+     2px -2px 0 #00000013,
+    -2px  2px 0 #00000013,
+     2px  2px 0 #00000013;
 }
 #playerCardOverlay{
   position:fixed;
@@ -437,7 +448,7 @@ margin-top:40px;
   
   width:100%;
   max-width:400px;
-  min-height:500px;
+  min-height:550px;
 
   background:#111;
   color:#fff;
@@ -476,24 +487,49 @@ margin-top:40px;
 .cardStat{
   display:flex;
   justify-content:space-between;
-  margin:8px 0;
+  margin:16px 0;
 }
 
 #cardBio{
   margin-top:20px;
   padding:10px;
   border:1px solid #666;
+  color:#fff;
   border-radius:10px;
   min-height:80px;
   white-space:pre-wrap;
   word-break:break-word;
   overflow-wrap:anywhere;
+
+  font-size:18px;
+  font-weight:850;
+  line-height:1.6;
 }
 
 .closeCard{
   position:absolute;
   right:10px;
   top:10px;
+}
+.statLabel{
+  font-size:16px;
+  font-weight:900;
+  color:#ffd700;
+  display:inline-block;
+  width:100px;
+}
+#cardRate,
+#cardRankRate,
+#cardTotal{
+  font-family:'Bungee', cursive;
+  font-size:19px;
+  font-weight:700;
+  color:#fff;
+}
+#cardRank{
+  font-family:'Bungee', cursive;
+  font-size:24px;
+  font-weight:900;
 }
 </style>
 </head>
@@ -629,25 +665,25 @@ margin-top:40px;
 
     <div id="cardTitle"></div>
 
-    <div class="cardStat">
-      レート
-      <span id="cardRate"></span>
-    </div>
+<div class="cardStat">
+  <span class="statLabel">レート</span>
+  <span id="cardRate"></span>
+</div>
 
-    <div class="cardStat">
-      ランク
-      <span id="cardRank"></span>
-    </div>
+<div class="cardStat">
+  <span class="statLabel">ランク</span>
+  <span id="cardRank"></span>
+</div>
 
-    <div class="cardStat">
-      ランクレート
-      <span id="cardRankRate"></span>
-    </div>
+<div class="cardStat">
+  <span class="statLabel">ランクレート</span>
+  <span id="cardRankRate"></span>
+</div>
 
-    <div class="cardStat">
-      累計正解数
-      <span id="cardTotal"></span>
-    </div>
+<div class="cardStat">
+  <span class="statLabel">累計正解数</span>
+  <span id="cardTotal"></span>
+</div>
 
     <div id="cardBio"></div>
 
@@ -710,10 +746,10 @@ margin-top:40px;
   let userMap = null;
 
 async function getUserMap(){
-  if(userMap) return userMap;
 
-  const users = await getUsersOnce();
-  userMap = {};
+  const users = await getRankingData();
+
+  const userMap = {};
 
   users.forEach(u => {
     userMap[u[0]] = u[1];
@@ -2320,7 +2356,7 @@ authorType.value=localStorage.getItem("authorType")||"";
 soundToggle.checked=localStorage.getItem("sound")!=="off";
 }
 
-function saveSettings(){
+async function saveSettings(){
 let name = nameInput.value.trim();
 
   if(name.length < 1 || name.length > 10){
@@ -2377,6 +2413,31 @@ localStorage.setItem("sound",soundToggle.checked?"on":"off");
     questionBgm.currentTime = 0;
   }
 updateProfile();
+
+await uploadRanking();
+console.log(
+  "保存後の名前:",
+  localStorage.getItem("username")
+);
+
+const data = await getRankingData();
+
+console.log("Firebase:", data);
+
+console.log(
+  "自分のID",
+  localStorage.getItem("userId")
+);
+const myId = localStorage.getItem("userId");
+
+const me = data.find(x => x[0] === myId);
+
+console.log("自分のFirebaseデータ", me);
+cachedUsers = null;
+
+if(document.getElementById("rankingView")){
+  await showRateRanking();
+}
 document.addEventListener("click", () => {
 if(localStorage.getItem("sound")!=="off"){
   homeBgm.play().catch(()=>{});
@@ -2590,17 +2651,16 @@ function closeTitleMenu(){
 let cachedUsers = null;
 
 async function getUsersOnce() {
-  if (cachedUsers) return cachedUsers;
-
-  cachedUsers = await getRankingData(); // ←ここが本体
-  return cachedUsers;
+  return await getRankingData();
 }
 window.addEventListener("load", () => {
   getUsersOnce();
 });
 async function showRanking(){
+  cachedUsers = null;
+
   showScreen("rankingScreen");
-  showRateRanking();
+  await showRateRanking();
 }
   async function showRateRanking(){
 
@@ -2612,6 +2672,10 @@ async function showRanking(){
 
   let html="<h3>🏆総合レート</h3>";
 
+  console.log(
+  "表示する自分",
+  users.find(x => x[0] === localStorage.getItem("userId"))
+);
 users.slice(0,10).forEach((u,i)=>{
 html += `
 <div class="rank-card"
@@ -2626,7 +2690,7 @@ onclick="playProfileSound();tapRankCard(this,'${u[0]}');openPlayerCard('${u[0]}'
 </div>
 
 <div class="rank-name">
-  ${i+1}位 ${(u[1].name || "Player")}
+  ${i+1}位 　${(u[1].name || "Player")}
 </div>
 
 <div class="rank-rate">
@@ -2660,7 +2724,7 @@ onclick="playProfileSound();tapRankCard(this,'${u[0]}');openPlayerCard('${u[0]}'
     src="${u[1].icon || ''}">
 </div>
   <div class="rank-name">
-    ${i+1}位 ${(u[1].name || "Player")}
+    ${i+1}位 　${(u[1].name || "Player")}
   </div>
   <div class="rank-rate">
     ${u[1].rankRate}
@@ -2760,8 +2824,21 @@ async function openPlayerCard(userId){
 
     cardRate.textContent = data.rate || 0;
     cardRankRate.textContent = data.rankRate || 0;
-    cardRank.textContent =
-      getRankNameByRate(data.rankRate || 0);
+    const rankJa =
+  getRankNameByRate(data.rankRate || 0);
+
+const rankEn = {
+  "ブロンズ":"BRONZE",
+  "シルバー":"SILVER",
+  "ゴールド":"GOLD",
+  "プラチナ":"PLATINUM",
+  "レジェンド":"LEGEND",
+  "マスター":"MASTER",
+  "イモータル":"IMMORTAL"
+};
+
+cardRank.textContent =
+  rankEn[rankJa] || rankJa;
 
     cardTotal.textContent =
       data.totalCorrect || 0;
@@ -3133,7 +3210,8 @@ checkTitles();
   localStorage.setItem("rankRate",rankRate);
     console.log("uploadRanking呼び出し前");
     await uploadRanking();
-    
+    cachedUsers = null;
+userMap = null;
 showScreen("result");
 if(mode==="rank"){
 
