@@ -386,7 +386,9 @@ margin-top:40px;
   text-overflow:ellipsis;
   white-space:nowrap;
 }
-
+.rank-card:active{
+  transform: scale(0.95);
+}
 .rank-rate{
   width:70px;
   text-align:right;
@@ -406,30 +408,33 @@ margin-top:40px;
   display:flex;
 }
 
-#playerCard{
+#playerCard {
+  width: min(90vw, 420px);
+  min-height: 550px;
 
-  width:min(90vw,420px);
-  min-height:550px;
+  background: #111;
+  color: white;
 
-    background:#111;
-  color:white;
+  border: 3px solid #fff;
+  border-radius: 20px;
 
-  background:#111;
-  border:3px solid #fff;
-  border-radius:20px;
+  padding: 20px;
 
-  padding:20px;
+  position: relative;
+  z-index: 10000;
 
-  position:relative;
+  /* 閉じた状態 */
+  transform: scale(0.05);
+  opacity: 0;
 
-  transform:scale(.05);
-  opacity:0;
-
-  transition:
-    transform .35s ease,
-    opacity .35s ease;
+  transition: transform 0.35s ease, opacity 0.35s ease;
 }
 
+/* 開いた状態 */
+#playerCard.open {
+  transform: scale(1);
+  opacity: 1;
+}
 #playerCard.open{
   transform:scale(1);
   opacity:1;
@@ -2694,15 +2699,8 @@ async function openPlayerCard(userId){
 
   try {
 
-    console.log("open start");
-
     const users = await getUserMap();
     const data = users[userId];
-
-    if(!data) {
-      console.log("no data");
-      return;
-    }
 
     cardIcon.src = data.icon || "default.png";
     cardName.textContent = data.name || "Player";
@@ -2724,20 +2722,11 @@ async function openPlayerCard(userId){
     cardBio.textContent = data.author || "自己紹介なし";
 
     playerCardOverlay.classList.add("show");
-
-    setTimeout(() => {
-      if (playerCard) {
-        playerCard.classList.add("open");
-      } else {
-        console.log("playerCard not found");
-      }
-    }, 100);
-
   } catch (e) {
-    console.error("ERROR:", e);
   }
 }
 function tapRankCard(card, uid){
+  openPlayerCard(uid);
   card.style.transform = "scale(0.95)";
 
   requestAnimationFrame(() => {
@@ -2745,12 +2734,11 @@ function tapRankCard(card, uid){
   });
 }
 function closePlayerCard(){
-
   playerCard.classList.remove("open");
 
-  setTimeout(()=>{
+  requestAnimationFrame(() => {
     playerCardOverlay.classList.remove("show");
-  },350);
+  });
 }
 function playClickSound(){
   if(localStorage.getItem("sound")==="off") return;
