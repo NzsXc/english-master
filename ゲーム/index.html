@@ -296,6 +296,69 @@ margin-top:40px;
 
     transition:transform 0.15s;
 }
+/* 虹称号 */
+.rainbow{
+  font-weight:900;
+
+  background:linear-gradient(
+    90deg,
+    #ff8fd1,
+    #ffd6ff,
+    #9eefff,
+    #c8b6ff,
+    #ff8fd1
+  );
+
+  background-size:300% 100%;
+
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+
+  animation:rainbowFlow 2s linear infinite;
+}
+
+@keyframes rainbowFlow{
+  from{
+    background-position:0% 0;
+  }
+  to{
+    background-position:300% 0;
+  }
+}
+
+/* 発光称号 */
+.glow{
+  font-weight:bold;
+  color:#ffd700;
+
+  text-shadow:
+    -2px -2px 0 #000,
+     2px -2px 0 #000,
+    -2px  2px 0 #000,
+     2px  2px 0 #000,
+     0 0 5px #ffcc00,
+     0 0 10px #ff9900,
+     0 0 20px #ff6600;
+
+  animation:glowEffect 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes glowEffect{
+  from{
+    text-shadow:
+      0 0 5px #ffcc00,
+      0 0 10px #ff9900,
+      0 0 20px #ff6600;
+  }
+
+  to{
+    text-shadow:
+      0 0 10px #ffcc00,
+      0 0 20px #ff9900,
+      0 0 40px #ff6600,
+      0 0 60px #ff3300;
+  }
+}
 .rank-card:active{
   transform:scale(0.97);
 }
@@ -626,6 +689,20 @@ margin-top:40px;
 </div>
 
 <script>
+  let userMap = null;
+
+async function getUserMap(){
+  if(userMap) return userMap;
+
+  const users = await getUsersOnce();
+  userMap = {};
+
+  users.forEach(u => {
+    userMap[u[0]] = u[1];
+  });
+
+  return userMap;
+}
 function updateRateColor(){
   const el = document.getElementById("rateView");
   if(!el) return;
@@ -2136,8 +2213,31 @@ function updateProfile(){
 userName.textContent=localStorage.getItem("username")||"Player";
 nameInput.value=userName.textContent;
 rankNum.textContent=getRank();
-  document.getElementById("titleView").textContent =
-    localStorage.getItem("equippedTitle") || "見習い学習者";
+  const titleEl = document.getElementById("titleView");
+
+titleEl.textContent =
+  localStorage.getItem("equippedTitle") || "見習い学習者";
+
+const title = titleEl.textContent;
+
+// 前の見た目を消す
+titleEl.classList.remove("rainbow","glow");
+
+// 虹称号
+if(
+  title === "神話級" ||
+  title === "生ける伝説"
+){
+  titleEl.classList.add("rainbow");
+}
+
+// 発光称号
+if(
+  title === "数学マスター" ||
+  title === "語彙の覇王"
+){
+  titleEl.classList.add("glow");
+}
 
 rateView.textContent=rate;
 rateBar.style.width=((rate%50)/50*100)+"%";
@@ -2270,6 +2370,22 @@ function openTitleMenu(){
   showScreen("titleMenu");
   loadTitles();
 }
+function getTitleClass(title){
+
+  if(["神話級", "生ける伝説"].includes(title)){
+  return "rainbow";
+}
+
+if(["数学マスター", "語彙の覇王"].includes(title)){
+  return "glow";
+}
+
+  if(title === "数学マスター"){
+    return "glow";
+  }
+
+  return "";
+}
 function loadTitles(){
     if(!localStorage.getItem("titles")){
   localStorage.setItem(
@@ -2328,7 +2444,9 @@ function loadTitles(){
 
       div.innerHTML = `
       ✓ 所持済み<br>
-      <b>${title.name}</b><br>
+      <b class="${getTitleClass(title.name)}">
+  ${title.name}
+</b><br>
       入手条件：${title.desc}<br>
       `;
 
@@ -2357,7 +2475,9 @@ function loadTitles(){
 
       div.innerHTML = `
       🔒 未所持<br>
-      <b>${title.name}</b><br>
+      <b class="${getTitleClass(title.name)}">
+  ${title.name}
+</b><br>
       入手条件：${title.desc}
       `;
     }
@@ -2449,13 +2569,21 @@ if(
 function closeTitleMenu(){
   showScreen("profile");
 }
+let cachedUsers = null;
+
+async function getUsersOnce() {
+  if (cachedUsers) return cachedUsers;
+
+  cachedUsers = await getRankingData(); // ←ここが本体
+  return cachedUsers;
+}
 async function showRanking(){
   showScreen("rankingScreen");
   showRateRanking();
 }
   async function showRateRanking(){
 
-  const users = await getRankingData();
+  const users = await getUsersOnce();
 
   users.sort((a,b)=>
     b[1].rate-a[1].rate
@@ -2484,7 +2612,7 @@ onclick="playProfileSound();tapRankCard(this,'${u[0]}')">
 }
   async function showRankRateRanking(){
 
-  const users = await getRankingData();
+  const users = await getUsersOnce();
 
   users.sort((a,b)=>
     b[1].rankRate-a[1].rankRate
@@ -2513,7 +2641,7 @@ onclick="playProfileSound();tapRankCard(this,'${u[0]}')">
 }
   async function showUserRankRanking(){
 
-  const users = await getRankingData();
+  const users = await getUsersOnce();
 
   users.sort((a,b)=>
     b[1].userRank-a[1].userRank
@@ -2564,56 +2692,54 @@ function getRankNameByRate(rr){
 
 async function openPlayerCard(userId){
 
-  const users =
-    await getRankingData();
+  try {
 
-  const target =
-    users.find(u => u[0] === userId);
+    console.log("open start");
 
-  if(!target) return;
+    const users = await getUserMap();
+    const data = users[userId];
 
-  const data = target[1];
+    if(!data) {
+      console.log("no data");
+      return;
+    }
 
-  cardIcon.src =
-    data.icon || "";
+    cardIcon.src = data.icon || "default.png";
+    cardName.textContent = data.name || "Player";
 
-  cardName.textContent =
-    data.name || "Player";
+    cardTitle.textContent = data.title || "称号なし";
 
-  cardTitle.textContent =
-    data.title || "称号なし";
+    // ★ここ安全化
+    cardTitle.classList.remove("rainbow", "glow");
 
-  cardRate.textContent =
-    data.rate || 0;
+    const cls = getTitleClass ? getTitleClass(data.title) : null;
+    if (cls) {
+      cardTitle.classList.add(cls);
+    }
 
-  cardRankRate.textContent =
-    data.rankRate || 0;
+    cardRate.textContent = data.rate || 0;
+    cardRankRate.textContent = data.rankRate || 0;
+    cardRank.textContent = getRankNameByRate(data.rankRate || 0);
+    cardTotal.textContent = data.totalCorrect || 0;
+    cardBio.textContent = data.author || "自己紹介なし";
 
-cardRank.textContent =
-  getRankNameByRate(
-    data.rankRate || 0
-  );
+    playerCardOverlay.classList.add("show");
 
-cardTotal.textContent =
-  data.totalCorrect || 0;
+    setTimeout(() => {
+      if (playerCard) {
+        playerCard.classList.add("open");
+      } else {
+        console.log("playerCard not found");
+      }
+    }, 100);
 
-  cardBio.textContent =
-    data.author || "自己紹介なし";
-
-  playerCardOverlay.classList.add("show");
-
-  setTimeout(()=>{
-    playerCard.classList.add("open");
-  },100);
+  } catch (e) {
+    console.error("ERROR:", e);
+  }
 }
 function tapRankCard(card, uid){
 
   card.style.transform = "scale(0.95)";
-
-  setTimeout(() => {
-    card.style.transform = "";
-    openPlayerCard(uid);
-  }, 120);
 
 }
 function closePlayerCard(){
