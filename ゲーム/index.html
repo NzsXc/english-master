@@ -2738,9 +2738,11 @@ async function openPlayerCard(userId){
   }
 }
 function tapRankCard(card, uid){
-
   card.style.transform = "scale(0.95)";
 
+  requestAnimationFrame(() => {
+    card.style.transform = "";
+  });
 }
 function closePlayerCard(){
 
