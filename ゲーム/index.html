@@ -363,17 +363,15 @@ margin-top:40px;
   transform:scale(0.97);
 }
 .rank-icon{
-  width:50px;
-  height:50px;
-  flex-shrink:0;
+  width:32px;
+  height:32px;
+  flex:0 0 32px;
 }
 
 .rank-icon img{
-  width:100%;
-  height:100%;
-  border-radius:50%;
+  width:32px;
+  height:32px;
   object-fit:cover;
-  border:1px solid #aaa;
 }
 
 .rank-name{
@@ -386,8 +384,24 @@ margin-top:40px;
   text-overflow:ellipsis;
   white-space:nowrap;
 }
-.rank-card:active{
-  transform: scale(0.95);
+/* ランキングのアイコンだけ整える */
+.rank-card .rank-icon{
+  width:32px;
+  height:32px;
+  flex:0 0 32px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.rank-card .rank-icon-img{
+  width:32px;
+  height:32px;
+  max-width:32px;
+  max-height:32px;
+  object-fit:cover;
+  border-radius:50%;
+  display:block;
 }
 .rank-rate{
   width:70px;
@@ -407,40 +421,12 @@ margin-top:40px;
 #playerCardOverlay.show{
   display:flex;
 }
-
-#playerCard {
-  width: min(90vw, 420px);
-  min-height: 550px;
-
-  background: #111;
-  color: white;
-
-  border: 3px solid #fff;
-  border-radius: 20px;
-
-  padding: 20px;
-
-  position: relative;
-  z-index: 10000;
-
-  /* 閉じた状態 */
-  transform: scale(0.05);
-  opacity: 0;
-
-  transition: transform 0.35s ease, opacity 0.35s ease;
-}
-
-/* 開いた状態 */
-#playerCard.open {
-  transform: scale(1);
-  opacity: 1;
-}
 #playerCard.open{
   transform:scale(1);
   opacity:1;
 }
 
-#cardIcon{
+#playerCardOverlay #cardIcon{
   width:120px;
   height:120px;
   border-radius:50%;
@@ -537,7 +523,7 @@ margin-top:40px;
 <div class="card">
 <h1>英単語Master</h1>
 <div class="top">
-  <img id="icon">
+  <img id="icon" class="rank-icon-img">
 
   <div class="userInfo">
 <div id="userName">Player</div>
@@ -610,7 +596,7 @@ margin-top:40px;
     <button class="closeCard"
       onclick="closePlayerCard()">✕</button>
 
-    <img id="cardIcon">
+    <img id="playerCardIcon">
 
     <h2 id="cardName"></h2>
 
@@ -2599,8 +2585,8 @@ async function showRanking(){
 users.slice(0,10).forEach((u,i)=>{
   html += `
 <div class="rank-card"
-onclick="playProfileSound();tapRankCard(this,'${u[0]}')">
-  <div class="rank-icon">
+onclick="playProfileSound();tapRankCard(this,'${u[0]}');openPlayerCard('${u[0]}')"
+<div class="rank-icon">
   <img src="${u[1].icon || ''}">
 </div>
   <div class="rank-name">
@@ -2628,8 +2614,8 @@ onclick="playProfileSound();tapRankCard(this,'${u[0]}')">
 users.slice(0,10).forEach((u,i)=>{
   html += `
 <div class="rank-card"
-onclick="playProfileSound();tapRankCard(this,'${u[0]}')">
-  <div class="rank-icon">
+onclick="playProfileSound();tapRankCard(this,'${u[0]}');openPlayerCard('${u[0]}')"
+<div class="rank-icon">
   <img src="${u[1].icon || ''}">
 </div>
   <div class="rank-name">
@@ -2657,8 +2643,8 @@ onclick="playProfileSound();tapRankCard(this,'${u[0]}')">
 users.slice(0,10).forEach((u,i)=>{
  html += `
 <div class="rank-card"
-onclick="playProfileSound();tapRankCard(this,'${u[0]}')">
-  <div class="rank-icon">
+onclick="playProfileSound();tapRankCard(this,'${u[0]}');openPlayerCard('${u[0]}')"
+<div class="rank-icon">
   <img src="${u[1].icon || ''}">
 </div>
   <div class="rank-name">
@@ -2694,7 +2680,8 @@ function getRankNameByRate(rr){
 
   return rank;
 }
-
+const playerCardIcon =
+  document.getElementById("playerCardIcon");
 async function openPlayerCard(userId){
 
   try {
@@ -2702,7 +2689,7 @@ async function openPlayerCard(userId){
     const users = await getUserMap();
     const data = users[userId];
 
-    cardIcon.src = data.icon || "default.png";
+    playerCardIcon.src = data.icon || "default.png";
     cardName.textContent = data.name || "Player";
 
     cardTitle.textContent = data.title || "称号なし";
@@ -2726,11 +2713,13 @@ async function openPlayerCard(userId){
   }
 }
 function tapRankCard(card, uid){
-  openPlayerCard(uid);
   card.style.transform = "scale(0.95)";
 
   requestAnimationFrame(() => {
     card.style.transform = "";
+
+    // ★ ここに移動
+    openPlayerCard(uid);
   });
 }
 function closePlayerCard(){
