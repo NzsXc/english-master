@@ -17,7 +17,8 @@
   ランクマッチ、レートマッチ個別にレート対応、レベルごとに問題変化
 ## 公開URL
 
-https://nzsxc.github.io/english-master/ゲーム/
+https://nzsxc.github.io/english-master/game
+/
 ## 更新予定
 - 単語追加
 - 新モード追加
