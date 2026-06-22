@@ -279,22 +279,30 @@ margin-top:40px;
 /* 1100〜（紫） */
 .rate-9 { color:#8805d4; }
 .rank-card{
-    display:flex;
-    align-items:center;
-    border:2px solid #333;
-    border-radius:15px;
-    padding:12px 18px;
-    margin:8px 0;
-    opacity:1;
-    width:100%;
-  box-sizing:border-box;
-    background:#fff;
-    position:relative;
-    z-index:10;
-    box-shadow:
-      0 4px 12px rgba(0,0,0,.25);
+  display:flex;
+  align-items:center;
 
-    transition:transform 0.15s;
+  border:2px solid #333;
+  border-radius:15px;
+
+  padding:10px 15px;
+  margin:8px 0;
+
+  width:100%;
+  min-height:60px;
+
+  box-sizing:border-box;
+  overflow:hidden;
+
+  background:#fff;
+
+  position:relative;
+  z-index:10;
+
+  box-shadow:
+    0 4px 12px rgba(0,0,0,.25);
+
+  transition:transform 0.15s;
 }
 /* 虹称号 */
 .rainbow{
@@ -425,8 +433,27 @@ margin-top:40px;
   transform:scale(1);
   opacity:1;
 }
+#playerCard{
+  
+  width:100%;
+  max-width:400px;
+  min-height:500px;
 
-#playerCardOverlay #cardIcon{
+  background:#111;
+  color:#fff;
+
+  border-radius:20px;
+  padding:18px 24px;
+
+  position:relative;
+
+  box-shadow:0 10px 30px rgba(0,0,0,.5);
+
+  transform:scale(.9);
+  opacity:0;
+  transition:.2s;
+}
+#playerCardIcon{
   width:120px;
   height:120px;
   border-radius:50%;
@@ -2568,6 +2595,9 @@ async function getUsersOnce() {
   cachedUsers = await getRankingData(); // ←ここが本体
   return cachedUsers;
 }
+window.addEventListener("load", () => {
+  getUsersOnce();
+});
 async function showRanking(){
   showScreen("rankingScreen");
   showRateRanking();
@@ -2583,18 +2613,26 @@ async function showRanking(){
   let html="<h3>🏆総合レート</h3>";
 
 users.slice(0,10).forEach((u,i)=>{
-  html += `
+html += `
 <div class="rank-card"
-onclick="playProfileSound();tapRankCard(this,'${u[0]}');openPlayerCard('${u[0]}')"
+onclick="playProfileSound();tapRankCard(this,'${u[0]}');openPlayerCard('${u[0]}')">
+
 <div class="rank-icon">
-  <img src="${u[1].icon || ''}">
+  <img
+    class="rank-icon-img"
+    loading="lazy"
+    decoding="async"
+    src="${u[1].icon || ''}">
 </div>
-  <div class="rank-name">
-    ${i+1}位 ${(u[1].name || "Player")}
-  </div>
-  <div class="rank-rate">
-    ${u[1].rate}
-  </div>
+
+<div class="rank-name">
+  ${i+1}位 ${(u[1].name || "Player")}
+</div>
+
+<div class="rank-rate">
+  ${u[1].rate}
+</div>
+
 </div>
 `;
 });
@@ -2614,9 +2652,12 @@ onclick="playProfileSound();tapRankCard(this,'${u[0]}');openPlayerCard('${u[0]}'
 users.slice(0,10).forEach((u,i)=>{
   html += `
 <div class="rank-card"
-onclick="playProfileSound();tapRankCard(this,'${u[0]}');openPlayerCard('${u[0]}')"
+onclick="playProfileSound();tapRankCard(this,'${u[0]}');openPlayerCard('${u[0]}')">
+
 <div class="rank-icon">
-  <img src="${u[1].icon || ''}">
+  <img
+    class="rank-icon-img"
+    src="${u[1].icon || ''}">
 </div>
   <div class="rank-name">
     ${i+1}位 ${(u[1].name || "Player")}
@@ -2630,7 +2671,7 @@ onclick="playProfileSound();tapRankCard(this,'${u[0]}');openPlayerCard('${u[0]}'
 
   document.getElementById("rankingView").innerHTML=html;
 }
-  async function showUserRankRanking(){
+async function showUserRankRanking(){
 
   const users = await getUsersOnce();
 
@@ -2640,22 +2681,29 @@ onclick="playProfileSound();tapRankCard(this,'${u[0]}');openPlayerCard('${u[0]}'
 
   let html="<h3>👑ユーザーランク</h3>";
 
-users.slice(0,10).forEach((u,i)=>{
- html += `
+  users.slice(0,10).forEach((u,i)=>{
+
+    html += `
 <div class="rank-card"
-onclick="playProfileSound();tapRankCard(this,'${u[0]}');openPlayerCard('${u[0]}')"
+onclick="playProfileSound();tapRankCard(this,'${u[0]}');openPlayerCard('${u[0]}')">
+
 <div class="rank-icon">
-  <img src="${u[1].icon || ''}">
+  <img
+    class="rank-icon-img"
+    src="${u[1].icon || ''}">
 </div>
-  <div class="rank-name">
-    ${i+1}位 ${(u[1].name || "Player")}
-  </div>
-  <div class="rank-rate">
-    Lv.${u[1].userRank}
-  </div>
+
+<div class="rank-name">
+  ${i+1}位 ${(u[1].name || "Player")}
+</div>
+
+<div class="rank-rate">
+  Lv.${u[1].userRank}
+</div>
+
 </div>
 `;
-});
+  });
 
   document.getElementById("rankingView").innerHTML=html;
 }
@@ -2689,27 +2737,55 @@ async function openPlayerCard(userId){
     const users = await getUserMap();
     const data = users[userId];
 
+    if(!data){
+      console.error("user not found:", userId);
+      return;
+    }
+
     playerCardIcon.src = data.icon || "default.png";
     cardName.textContent = data.name || "Player";
 
     cardTitle.textContent = data.title || "称号なし";
 
-    // ★ここ安全化
-    cardTitle.classList.remove("rainbow", "glow");
+    cardTitle.classList.remove("rainbow","glow");
 
-    const cls = getTitleClass ? getTitleClass(data.title) : null;
-    if (cls) {
+    const cls =
+      typeof getTitleClass === "function"
+        ? getTitleClass(data.title)
+        : null;
+
+    if(cls){
       cardTitle.classList.add(cls);
     }
 
     cardRate.textContent = data.rate || 0;
     cardRankRate.textContent = data.rankRate || 0;
-    cardRank.textContent = getRankNameByRate(data.rankRate || 0);
-    cardTotal.textContent = data.totalCorrect || 0;
-    cardBio.textContent = data.author || "自己紹介なし";
+    cardRank.textContent =
+      getRankNameByRate(data.rankRate || 0);
+
+    cardTotal.textContent =
+      data.totalCorrect || 0;
+
+    cardBio.textContent =
+      data.author || "自己紹介なし";
 
     playerCardOverlay.classList.add("show");
-  } catch (e) {
+
+    const playerCard =
+      document.getElementById("playerCard");
+
+    if(playerCard){
+
+      playerCard.classList.remove("open");
+
+      requestAnimationFrame(() => {
+        playerCard.classList.add("open");
+      });
+
+    }
+
+  } catch(e) {
+    console.error("openPlayerCard error:", e);
   }
 }
 function tapRankCard(card, uid){
@@ -2723,11 +2799,13 @@ function tapRankCard(card, uid){
   });
 }
 function closePlayerCard(){
+
   playerCard.classList.remove("open");
 
-  requestAnimationFrame(() => {
+  setTimeout(() => {
     playerCardOverlay.classList.remove("show");
-  });
+  }, 200);
+
 }
 function playClickSound(){
   if(localStorage.getItem("sound")==="off") return;
