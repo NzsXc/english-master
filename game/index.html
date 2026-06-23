@@ -2336,6 +2336,7 @@ rateBar.style.width=((rate%50)/50*100)+"%";
 rateCycleText.textContent=(rate%50)+" / 50";
 
 let lv=getRank(),used=0;
+document.getElementById("rankNum").textContent = lv;
 for(let i=1;i<lv;i++)used+=rankNeed(i);
 let cur=xp-used,next=rankNeed(lv);
 
