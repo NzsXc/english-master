@@ -2628,7 +2628,8 @@ function loadTitles(){
   });
 }
 function checkTitles(){
-
+const totalCorrect =
+  Number(localStorage.getItem("totalCorrect") || 0);
   let titles = JSON.parse(
     localStorage.getItem("titles") || '["プレイヤー"]'
   );
