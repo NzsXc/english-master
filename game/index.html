@@ -3,6 +3,7 @@
 <head>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bungee+Inline&display=swap" rel="stylesheet">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="google-site-verification" content="VmoHGkew9YixJCY6_gTrhPTekj4eKYKDvZ9lK_Ax06o" />
@@ -311,19 +312,20 @@ margin-top:40px;
 
   background:linear-gradient(
     90deg,
-    #ff8fd1,
-    #ffd6ff,
-    #9eefff,
-    #c8b6ff,
-    #ff8fd1
+    #ff77c6,
+    #ffb7ff,
+    #8aebff,
+    #b69eff,
+    #a1ffb6,   /* ← 追加した色（やさしいミント） */
+    #ff86cd
   );
 
-  background-size:300% 100%;
+  background-size:400% 100%; /* 色1つ増えたので広げる */
 
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
 
-  animation:rainbowFlow 2s linear infinite;
+  animation:rainbowFlow 10s linear infinite; /* ← 少し遅く */
 }
 
 @keyframes rainbowFlow{
@@ -331,43 +333,68 @@ margin-top:40px;
     background-position:0% 0;
   }
   to{
-    background-position:300% 0;
+    background-position:400% 0;
   }
 }
+.redsp{
+  font-weight:900;
 
-/* 発光称号 */
-.glow{
-  font-weight:bold;
-  color:#ffd700;
+  background:linear-gradient(
+    90deg,
+    #ff0000,
+    #ff5e2d,
+    #ff0000,
+    #ff6f1c,
+    #ff4444,   /* ← 追加した色（やさしいミント） */
+    #ff6e2b
+  );
 
-  text-shadow:
-    -2px -2px 0 #000,
-     2px -2px 0 #000,
-    -2px  2px 0 #000,
-     2px  2px 0 #000,
-     0 0 5px #ffcc00,
-     0 0 10px #ff9900,
-     0 0 20px #ff6600;
+  background-size:400% 100%; /* 色1つ増えたので広げる */
 
-  animation:glowEffect 1.5s ease-in-out infinite alternate;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+
+  animation:rainbowFlow 10s linear infinite; /* ← 少し遅く */
 }
 
-@keyframes glowEffect{
+@keyframes rainbowFlow{
   from{
-    text-shadow:
-      0 0 5px #ffcc00,
-      0 0 10px #ff9900,
-      0 0 20px #ff6600;
+    background-position:0% 0;
   }
-
   to{
-    text-shadow:
-      0 0 10px #ffcc00,
-      0 0 20px #ff9900,
-      0 0 40px #ff6600,
-      0 0 60px #ff3300;
+    background-position:400% 0;
   }
 }
+.goldsp{
+  font-weight:900;
+
+  background:linear-gradient(
+    90deg,
+    #ffee00,
+    #da9b14,
+    #bbae00,
+    #e0b90b,
+    #ffb325,   /* ← 追加した色（やさしいミント） */
+    #e46600
+  );
+
+  background-size:400% 100%; /* 色1つ増えたので広げる */
+
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+
+  animation:rainbowFlow 10s linear infinite; /* ← 少し遅く */
+}
+
+@keyframes rainbowFlow{
+  from{
+    background-position:0% 0;
+  }
+  to{
+    background-position:400% 0;
+  }
+}
+/* 発光称号 */
 .rank-card:active{
   transform:scale(0.97);
 }
@@ -530,6 +557,23 @@ margin-top:40px;
   font-family:'Bungee', cursive;
   font-size:24px;
   font-weight:900;
+}
+/* ===== 称号フォント追加（既存CSSは無変更）===== */
+
+.font-myth{
+  font-family: 'Orbitron', sans-serif;
+}
+
+.font-math{
+  font-family: 'Press Start 2P', monospace;
+}
+
+.font-word{
+  font-family: 'Zen Maru Gothic', serif;
+}
+
+.font-en{
+  font-family: 'Bungee Inline', cursive;
 }
 </style>
 </head>
@@ -904,7 +948,27 @@ function getRankRank(){
   }
   return 0;
 }
+function getTitleClass(title){
+  const classes = [];
 
+  if(title === "神話級"){
+    classes.push("rainbow", "font-myth");
+  }
+  if(title === "EnglishMaster"){
+    classes.push("goldsp", "font-en");
+  }
+  if(title === "数学マスター"){
+    classes.push("glow", "font-math");
+  }
+  if(title === "語彙の覇王"){
+    classes.push("glow", "font-word");
+  }
+  if(title === "生ける伝説"){
+    classes.push("redsp");
+  }
+
+  return classes.join(" ");
+}
 /* ===== 既存 ===== */
 let rate=+localStorage.getItem("rate")||500;
 let xp=+localStorage.getItem("xp")||0;
@@ -2258,33 +2322,15 @@ function getRank(){let lv=1,t=xp;while(t>=rankNeed(lv)){t-=rankNeed(lv);lv++}ret
 function updateProfile(){
 userName.textContent=localStorage.getItem("username")||"Player";
 nameInput.value=userName.textContent;
-rankNum.textContent=getRank();
-  const titleEl = document.getElementById("titleView");
+const titleEl = document.getElementById("titleView");
 
-titleEl.textContent =
+const title =
   localStorage.getItem("equippedTitle") || "見習い学習者";
 
-const title = titleEl.textContent;
+titleEl.textContent = title;
+titleEl.className = "title " + getTitleClass(title);
 
 // 前の見た目を消す
-titleEl.classList.remove("rainbow","glow");
-
-// 虹称号
-if(
-  title === "神話級" ||
-  title === "生ける伝説"
-){
-  titleEl.classList.add("rainbow");
-}
-
-// 発光称号
-if(
-  title === "数学マスター" ||
-  title === "語彙の覇王"
-){
-  titleEl.classList.add("glow");
-}
-
 rateView.textContent=rate;
 rateBar.style.width=((rate%50)/50*100)+"%";
 rateCycleText.textContent=(rate%50)+" / 50";
@@ -2442,21 +2488,44 @@ function openTitleMenu(){
   loadTitles();
 }
 function getTitleClass(title){
+  const classes = [];
 
-  if(["神話級", "生ける伝説"].includes(title)){
-  return "rainbow";
-}
-
-if(["数学マスター", "語彙の覇王"].includes(title)){
-  return "glow";
-}
-
-  if(title === "数学マスター"){
-    return "glow";
+  // ===== エフェクト系 =====
+  if(title === "神話級"){
+    classes.push("rainbow");
   }
 
-  return "";
+  if(title === "生ける伝説"){
+    classes.push("redsp");
+  }
+
+  if(title === "EnglishMaster"){
+    classes.push("goldsp");
+  }
+
+  if(title === "数学マスター" || title === "語彙の覇王"){
+    classes.push("glow");
+  }
+
+  // ===== フォント系（称号個別）=====
+  if(title === "神話級"){
+    classes.push("font-myth");
+  }
+
+  if(title === "数学マスター"){
+    classes.push("font-myth");
+  }
+  if(title === "EnglishMaster"){
+    classes.push("font-en");
+  }
+
+  return classes.join(" ");
 }
+
+
+
+
+
 function loadTitles(){
     if(!localStorage.getItem("titles")){
   localStorage.setItem(
@@ -2487,12 +2556,13 @@ function loadTitles(){
 
   const allTitles = [
     {name:"プレイヤー", desc:"ゲームを開始する"},
-    {name:"英単語デビュー", desc:"レート501に到達"},
     {name:"555", desc:"レート555に到達"},
+    {name:"スタートダッシュ", desc:"レート600に到達"},
     {name:"777", desc:"レート777に到達"},
     {name:"1111", desc:"レート1111に到達"},
     {name:"帰国子女", desc:"レート1500到達"},
     {name:"神話級", desc:"レート2500到達"},
+    {name:"百問抜き", desc:"総合正解数100問達成"},
     {name:"はじめの一歩", desc:"ブロンズランクに到達"},
     {name:"銀の弾丸", desc:"シルバーランクに到達"},
     {name:"黄金期", desc:"ゴールドランクに到達"},
@@ -2563,23 +2633,26 @@ function checkTitles(){
     localStorage.getItem("titles") || '["プレイヤー"]'
   );
 
-  if(rate >= 501 && !titles.includes("英単語デビュー")){
-    titles.push("英単語デビュー");
-    alert("称号『英単語デビュー』を獲得！");
-  }
-
   if(rate >= 555 && !titles.includes("555")){
     titles.push("555");
     alert("称号『555』を獲得！");
   }
-　  if(rate >= 777 && !titles.includes("777")){
+
+  if(rate >= 600 && !titles.includes("スタートダッシュ")){
+    titles.push("スタートダッシュ");
+    alert("称号『スタートダッシュ』を獲得！");
+  }
+
+  if(rate >= 777 && !titles.includes("777")){
     titles.push("777");
     alert("称号『777』を獲得！");
   }
+
   if(rate >= 1111 && !titles.includes("1111")){
     titles.push("1111");
     alert("称号『1111』を獲得！");
   }
+
   if(rate >= 1500 && !titles.includes("帰国子女")){
     titles.push("帰国子女");
     alert("称号『帰国子女』を獲得！");
@@ -2589,49 +2662,57 @@ function checkTitles(){
     titles.push("神話級");
     alert("称号『神話級』を獲得！");
   }
+
+  if(totalCorrect >= 100 && !titles.includes("百問抜き")){
+    titles.push("百問抜き");
+    alert("称号『百問抜き』を獲得！");
+  }
+
   const rr = getRankRank();
 
-if(rr >= 1 && !titles.includes("はじめの一歩")){
-  titles.push("はじめの一歩");
-  alert("称号『はじめの一歩』を獲得！");
-}
+  if(rr >= 1 && !titles.includes("はじめの一歩")){
+    titles.push("はじめの一歩");
+    alert("称号『はじめの一歩』を獲得！");
+  }
 
-if(rr >= 2 && !titles.includes("銀の弾丸")){
-  titles.push("銀の弾丸");
-  alert("称号『銀の弾丸』を獲得！");
-}
+  if(rr >= 2 && !titles.includes("銀の弾丸")){
+    titles.push("銀の弾丸");
+    alert("称号『銀の弾丸』を獲得！");
+  }
 
-if(rr >= 3 && !titles.includes("黄金期")){
-  titles.push("黄金期");
-  alert("称号『黄金期』を獲得！");
-}
+  if(rr >= 3 && !titles.includes("黄金期")){
+    titles.push("黄金期");
+    alert("称号『黄金期』を獲得！");
+  }
 
-if(rr >= 4 && !titles.includes("白金の先駆者")){
-  titles.push("白金の先駆者");
-  alert("称号『白金の先駆者』を獲得！");
-}
+  if(rr >= 4 && !titles.includes("白金の先駆者")){
+    titles.push("白金の先駆者");
+    alert("称号『白金の先駆者』を獲得！");
+  }
 
-if(rr >= 5 && !titles.includes("生ける伝説")){
-  titles.push("生ける伝説");
-  alert("称号『生ける伝説』を獲得！");
-}
+  if(rr >= 5 && !titles.includes("生ける伝説")){
+    titles.push("生ける伝説");
+    alert("称号『生ける伝説』を獲得！");
+  }
 
-if(rr >= 6 && !titles.includes("EnglishMaster")){
-  titles.push("EnglishMaster");
-  alert("称号『EnglishMaster』を獲得！");
-}
+  if(rr >= 6 && !titles.includes("EnglishMaster")){
+    titles.push("EnglishMaster");
+    alert("称号『EnglishMaster』を獲得！");
+  }
 
-if(rr >= 7 && !titles.includes("語彙の覇王")){
-  titles.push("語彙の覇王");
-  alert("称号『語彙の覇王』を獲得！");
-}
-if(
-  authorType.value.trim() === "mathmaster" &&
-  !titles.includes("数学マスター")
-){
-  titles.push("数学マスター");
-  alert("称号『数学マスター』を獲得！");
-}
+  if(rr >= 7 && !titles.includes("語彙の覇王")){
+    titles.push("語彙の覇王");
+    alert("称号『語彙の覇王』を獲得！");
+  }
+
+  if(
+    authorType.value.trim() === "mathmaster" &&
+    !titles.includes("数学マスター")
+  ){
+    titles.push("数学マスター");
+    alert("称号『数学マスター』を獲得！");
+  }
+
   localStorage.setItem(
     "titles",
     JSON.stringify(titles)
@@ -2803,7 +2884,7 @@ async function openPlayerCard(userId){
 
     cardTitle.textContent = data.title || "称号なし";
 
-    cardTitle.classList.remove("rainbow","glow");
+    cardTitle.classList.remove("rainbow","glow","redsp","goldsp");
 
     const cls =
       typeof getTitleClass === "function"
