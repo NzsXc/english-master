@@ -877,7 +877,7 @@ function updateRateColor(){
 
     box.innerHTML = `
       日→英モードでレートを上げよう。<br>
-      レートが上がるほど高ランク単語が出やすくなり、もらえるレートが減少し、失うレートが増加します。<br>
+      レートが上がるほど高ランク単語が出やすくなり、獲得するレートが減少し、失うレートが増加します。<br>
       <br>
       ランクモードでは上のランクを目指して、実力相応の問題にチャレンジ！<br>
       ランキング機能で周りのプレイヤーの実績をチェック。上位を目指そう！<br>
@@ -889,8 +889,11 @@ function updateRateColor(){
 
     box.innerHTML = `
       ランクモードのランクは全部で8種類で、ビギナーからのスタートです。<br>
-      プロフィールの変更をランキングに反映するためには、1ゲームプレイする必要があります。<br>
       問題文の右側にある（数字）は、正解の単語の文字数を示しています。<br>
+      ユーザーランクは問題に正解するごとにXPを獲得でき、一定数に到達するとランクアップします。<br>
+　　　　<span style="font-weight:bold;">
+　　　通常レートが高いほど、獲得できるユーザーランクXPの量が増えます。
+　　　</span><br>
     `;
 
   }
@@ -927,8 +930,6 @@ else if(type==="policy"){
 【プライバシーポリシー】
 
 英単語Master（以下「本サービス」）では、ユーザー名、アイコン画像、学習データなどを保存する場合があります。
-
-これらのデータは利用者の端末内にのみ保存され、運営者へ送信されることはありません。
 
 本サービスでは、利用者の氏名、住所、電話番号、メールアドレスなどの個人情報を収集していません。
 
@@ -2016,7 +2017,7 @@ const words=[
 {jp:"達成する",en:"achieve",rank:5},
 {jp:"前進",en:"advance",rank:5},
 {jp:"無駄な",en:"vain",rank:5},
-{jp:"思い出す("意識的に)",en:"recall",rank:5},
+{jp:"思い出す"(意識的に)",en:"recall",rank:5},
 {jp:"思い出す(他者によって)",en:"remind",rank:5},
 {jp:"変形させる",en:"transform",rank:5},
 {jp:"花束",en:"bouquet",rank:9},
@@ -3393,7 +3394,8 @@ localStorage.setItem(
   totalCorrect
 );
 
-xp += correct * 10;
+const multiplier = Math.max(1, 1 + (rate - 500) / 1000);
+xp += Math.floor(correct * 10 * multiplier);
 
 if(mode === "rank"){
   rankRate += pendingRankRate;
