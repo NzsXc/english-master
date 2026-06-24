@@ -2937,6 +2937,39 @@ if (cls) {
   cardTitle.classList.add(...cls.trim().split(/\s+/));
 }
     cardRate.textContent = data.rate || 0;
+    cardRate.classList.remove(
+  "rate-1",
+  "rate-2",
+  "rate-3",
+  "rate-4",
+  "rate-5",
+  "rate-6",
+  "rate-7",
+  "rate-8",
+  "rate-9"
+);
+
+const rate = Number(data.rate || 0);
+
+if(rate < 600){
+  cardRate.classList.add("rate-1");
+} else if(rate < 800){
+  cardRate.classList.add("rate-2");
+} else if(rate < 1000){
+  cardRate.classList.add("rate-3");
+} else if(rate < 1200){
+  cardRate.classList.add("rate-4");
+} else if(rate < 1400){
+  cardRate.classList.add("rate-5");
+} else if(rate < 1600){
+  cardRate.classList.add("rate-6");
+} else if(rate < 1700){
+  cardRate.classList.add("rate-7");
+} else if(rate < 1800){
+  cardRate.classList.add("rate-8");
+} else {
+  cardRate.classList.add("rate-9");
+}
     cardRankRate.textContent = data.rankRate || 0;
     const rankJa =
   getRankNameByRate(data.rankRate || 0);
