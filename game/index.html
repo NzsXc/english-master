@@ -365,7 +365,36 @@ margin-top:40px;
     background-position:400% 0;
   }
 }
-.goldsp{
+.glow{
+  font-weight:900;
+
+  background:linear-gradient(
+    90deg,
+    #ffee00,
+    #da9b14,
+    #bbae00,
+    #e0b90b,
+    #ffb325,   /* ← 追加した色（やさしいミント） */
+    #e46600
+  );
+
+  background-size:400% 100%; /* 色1つ増えたので広げる */
+
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+
+  animation:rainbowFlow 10s linear infinite; /* ← 少し遅く */
+}
+
+@keyframes rainbowFlow{
+  from{
+    background-position:0% 0;
+  }
+  to{
+    background-position:400% 0;
+  }
+}
+  .goldsp{
   font-weight:900;
 
   background:linear-gradient(
@@ -2886,17 +2915,22 @@ async function openPlayerCard(userId){
 
     cardTitle.textContent = data.title || "称号なし";
 
-    cardTitle.classList.remove("rainbow","glow","redsp","goldsp");
+    cardTitle.classList.remove(
+  "rainbow",
+  "glow",
+  "redsp",
+  "goldsp",
+  "font-myth"
+);
 
-    const cls =
-      typeof getTitleClass === "function"
-        ? getTitleClass(data.title)
-        : null;
+const cls =
+  typeof getTitleClass === "function"
+    ? getTitleClass(data.title)
+    : null;
 
-    if(cls){
-      cardTitle.classList.add(cls);
-    }
-
+if (cls) {
+  cardTitle.classList.add(...cls.trim().split(/\s+/));
+}
     cardRate.textContent = data.rate || 0;
     cardRankRate.textContent = data.rankRate || 0;
     const rankJa =
