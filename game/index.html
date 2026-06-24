@@ -963,27 +963,28 @@ function getRankRank(){
   return 0;
 }
 function getTitleClass(title){
-  const classes = [];
 
   if(title === "神話級"){
-    classes.push("rainbow", "font-myth");
+    return "rainbow font-myth";
   }
+
   if(title === "EnglishMaster"){
-    classes.push("goldsp", "font-en");
+    return "goldsp font-en";
   }
+
   if(title === "数学マスター"){
-    classes.push("glow", "font-math");
+    return "glow font-math";
   }
+
   if(title === "語彙の覇王"){
-    classes.push("glow", "font-word");
+    return "glow font-word";
   }
+
   if(title === "生ける伝説"){
-    classes.push("redsp");
+    return "redsp";
   }
-  else{
-   classes.push("font-default");
-  }
-  return classes.join(" ");
+
+  return "font-default";
 }
 /* ===== 既存 ===== */
 let rate=+localStorage.getItem("rate")||500;
@@ -1514,10 +1515,6 @@ function getTitleClass(title){
 
   return classes.join(" ");
 }
-
-
-
-
 
 function loadTitles(){
     if(!localStorage.getItem("titles")){
