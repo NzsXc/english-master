@@ -1157,8 +1157,10 @@ function removeDuplicatesByRank() {
   window.words = [...map.values()];
 }
 
-// データ読み込み後に呼ぶ
+// ① 重複削除
 removeDuplicatesByRank();
+
+// ② 削除後の重複チェック（通常は空になる）
 const seen = new Set();
 const duplicates = [];
 
@@ -1172,4 +1174,4 @@ for (const w of window.words) {
   }
 }
 
-console.log("重複単語:", duplicates);
+console.log("重複単語（削除後）:", duplicates);
