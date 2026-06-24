@@ -240,14 +240,11 @@ margin-top:40px;
 .rankCell.on{
   background:linear-gradient(90deg,#ff9800,#ffd54f);
 }
-/* 全レート共通：文字影 */
-/* 全レート共通 */
 .rate-1,.rate-2,.rate-3,.rate-4,.rate-5,
 .rate-6,.rate-7,.rate-8,.rate-9{
   font-size: 32px;
   font-weight: bold;
 
-  /* 黒フチ + 影（全部ここ） */
   text-shadow:
     -1px -1px 0 #000,
      1px -1px 0 #000,
@@ -257,31 +254,22 @@ margin-top:40px;
 }
 
 
-/* 〜299 */
 .rate-1 { color:#000000; }
 
-/* 300〜449（黄緑） */
 .rate-2 { color:#8cff4a; }
-
-/* 450〜549（緑） */
+  
 .rate-3 { color:#1bbd06; }
 
-/* 550〜649（水色） */
 .rate-4 { color:#53acff; }
 
-/* 650〜749（青） */
 .rate-5 { color:#0037af; }
 
-/* 750〜849（黄色） */
 .rate-6 { color:#ffeb3b; }
 
-/* 850〜949（オレンジ） */
 .rate-7 { color:#ff9800; }
-
-/* 950〜1099（赤） */
+  
 .rate-8 { color:#e53935; }
 
-/* 1100〜（紫） */
 .rate-9 { color:#8805d4; }
 .rank-card{
   display:flex;
@@ -309,7 +297,6 @@ margin-top:40px;
 
   transition:transform 0.15s;
 }
-/* 虹称号 */
 .rainbow{
   font-weight:900;
 
@@ -319,16 +306,16 @@ margin-top:40px;
     #ffb7ff,
     #8aebff,
     #b69eff,
-    #a1ffb6,   /* ← 追加した色（やさしいミント） */
+    #a1ffb6,  
     #ff86cd
   );
 
-  background-size:400% 100%; /* 色1つ増えたので広げる */
+  background-size:400% 100%; 
 
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
 
-  animation:rainbowFlow 10s linear infinite; /* ← 少し遅く */
+  animation:rainbowFlow 10s linear infinite; 
 }
 
 @keyframes rainbowFlow{
@@ -348,16 +335,16 @@ margin-top:40px;
     #ff5e2d,
     #ff0000,
     #ff6f1c,
-    #ff4444,   /* ← 追加した色（やさしいミント） */
+    #ff4444,  
     #ff6e2b
   );
 
-  background-size:400% 100%; /* 色1つ増えたので広げる */
+  background-size:400% 100%; 
 
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
 
-  animation:rainbowFlow 10s linear infinite; /* ← 少し遅く */
+  animation:rainbowFlow 10s linear infinite;
 }
 
 @keyframes rainbowFlow{
@@ -377,16 +364,16 @@ margin-top:40px;
     #da9b14,
     #bbae00,
     #e0b90b,
-    #ffb325,   /* ← 追加した色（やさしいミント） */
+    #ffb325,  
     #e46600
   );
 
-  background-size:400% 100%; /* 色1つ増えたので広げる */
+  background-size:400% 100%; 
 
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
 
-  animation:rainbowFlow 10s linear infinite; /* ← 少し遅く */
+  animation:rainbowFlow 10s linear infinite; 
 }
 
 @keyframes rainbowFlow{
@@ -406,16 +393,16 @@ margin-top:40px;
     #da9b14,
     #bbae00,
     #e0b90b,
-    #ffb325,   /* ← 追加した色（やさしいミント） */
+    #ffb325,
     #e46600
   );
 
-  background-size:400% 100%; /* 色1つ増えたので広げる */
+  background-size:400% 100%; 
 
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
 
-  animation:rainbowFlow 10s linear infinite; /* ← 少し遅く */
+  animation:rainbowFlow 10s linear infinite; 
 }
 
 @keyframes rainbowFlow{
@@ -426,7 +413,6 @@ margin-top:40px;
     background-position:400% 0;
   }
 }
-/* 発光称号 */
 .rank-card:active{
   transform:scale(0.97);
 }
@@ -454,7 +440,6 @@ margin-top:40px;
   text-overflow:ellipsis;
   white-space:nowrap;
 }
-/* ランキングのアイコンだけ整える */
 .rank-card .rank-icon{
   width:32px;
   height:32px;
@@ -589,8 +574,6 @@ margin-top:40px;
   font-size:24px;
   font-weight:900;
 }
-/* ===== 称号フォント追加（既存CSSは無変更）===== */
-
 .font-myth{
   font-family: 'Orbitron', sans-serif;
 }
@@ -866,7 +849,6 @@ function updateRateColor(){
   } else if(rate < 2000){
     el.classList.add("rate-9");
     } else {
-  // 1800以上は全部ここ
   el.classList.add("rate-9");
 }
   }
@@ -906,7 +888,7 @@ function updateRateColor(){
       ・6/10リザルト画面のアップデート<br>
       ・6/11ランキング機能追加、レートシステムのアップデート<br>
       ・6/14称号追加<br>
-      ・6/16ランキング機能の追加アップデート
+      ・6/16ランキング機能の追加アップデート<br>
       ・6/24大幅な軽量化、単語、称号追加
     `;
 
@@ -1342,7 +1324,6 @@ const title =
 titleEl.textContent = title;
 titleEl.className = "title " + getTitleClass(title);
 
-// 前の見た目を消す
 rateView.textContent=rate;
 rateBar.style.width=((rate%50)/50*100)+"%";
 rateCycleText.textContent=(rate%50)+" / 50";
@@ -1503,7 +1484,6 @@ function openTitleMenu(){
 function getTitleClass(title){
   const classes = [];
 
-  // ===== エフェクト系 =====
   if(title === "神話級"){
     classes.push("rainbow");
   }
@@ -1997,7 +1977,6 @@ function tapRankCard(card, uid){
   requestAnimationFrame(() => {
     card.style.transform = "";
 
-    // ★ ここに移動
     openPlayerCard(uid);
   });
 }
@@ -2158,8 +2137,8 @@ function startGame(m){
   correct=0;
   pendingRate=0;
   resultHistory=[];
-  pendingRankRate=0; // ★ 
-    usedIndexes = [];   // ★ 追加（毎回10問でリセット）
+  pendingRankRate=0; 
+    usedIndexes = []; 
 
   const questionBgm =
     document.getElementById("questionBgm");
@@ -2299,7 +2278,6 @@ if(mode === "rank"){
         "❌ 正解: " + current.en + "（-" + rateSet.miss + "）";
         changeValue = -rateSet.miss;
         playSe("wrongSe");
-      // checkAnswer の最後
     }
   }
 
@@ -2348,7 +2326,6 @@ document.getElementById("skipBtn").disabled = true;
     msg.textContent = "スキップ（-" + rateSet.miss + "）";
     playSe("wrongSe");
   }
-  // skipQuestion の最後
 q++;
 if(q >= 10){
   setTimeout(fadeToResult, 400);
