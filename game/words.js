@@ -964,25 +964,33 @@ window.words=[{"jp":"りんご","en":"apple","rank":1}
 {"jp":"連続","en":"sequence","rank":6}
 {"jp":"省略する","en":"omit","rank":5}];
 console.log("開始");
+
 const map = new Map();
+
 for (const w of window.words || []) {
   const key = w.en.toLowerCase();
+
   if (!map.has(key) || w.rank < map.get(key).rank) {
     map.set(key, w);
   }
 }
+
 const clean = [...map.values()];
+
 console.log("件数:", clean.length);
-const text = clean
-  .map(w => JSON.stringify(w))
-  .join("\n");
+
+// ★JSON（カンマあり・標準形式）
+const text = JSON.stringify(clean, null, 2);
+
 const blob = new Blob(
   [text],
   { type: "application/json" }
 );
+
 const a = document.createElement("a");
 a.href = URL.createObjectURL(blob);
-a.download = "words_clean.jsonl";
+a.download = "words_clean.json";
+
 console.log("クリック前");
 a.click();
 console.log("クリック後");
