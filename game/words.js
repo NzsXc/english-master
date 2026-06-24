@@ -1143,3 +1143,17 @@ window.words=[
 {jp:"連続",en:"sequence",rank:6},
 {jp:"省略する",en:"omit",rank:5},
 ];
+const seen = new Set();
+const duplicates = [];
+
+for (const w of window.words) {
+  const en = w.en.toLowerCase();
+
+  if (seen.has(en)) {
+    duplicates.push(en);
+  } else {
+    seen.add(en);
+  }
+}
+
+console.log("重複単語:", duplicates);
