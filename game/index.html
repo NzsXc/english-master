@@ -1875,13 +1875,7 @@ if(!data){
 
     cardTitle.textContent = data.title || "称号なし";
 
-    cardTitle.classList.remove(
-  "rainbow",
-  "glow",
-  "redsp",
-  "goldsp",
-  "font-myth"
-);
+cardTitle.className = "";
 
 const cls =
   typeof getTitleClass === "function"
