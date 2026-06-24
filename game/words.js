@@ -4826,30 +4826,25 @@ window.words=[
   }
 ];
 console.log("開始");
-
 const map = new Map();
-
 for (const w of window.words || []) {
   const key = w.en.toLowerCase();
-
   if (!map.has(key) || w.rank < map.get(key).rank) {
     map.set(key, w);
   }
 }
-
 const clean = [...map.values()];
-
 console.log("件数:", clean.length);
-
+const text = clean
+  .map(w => JSON.stringify(w))
+  .join("\n");
 const blob = new Blob(
-  [JSON.stringify(clean, null, 2)],
+  [text],
   { type: "application/json" }
 );
-
 const a = document.createElement("a");
 a.href = URL.createObjectURL(blob);
-a.download = "words_clean.json";
-
+a.download = "words_clean.jsonl";
 console.log("クリック前");
 a.click();
 console.log("クリック後");
