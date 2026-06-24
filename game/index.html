@@ -818,17 +818,18 @@ margin-top:40px;
 <script>
   let userMap = null;
 
-async function getUserMap(){
+async function getUser(userId){
 
-  const users = await getRankingData();
+  const snap =
+    await fbGet(
+      fbRef(rtdb, `ranking/${userId}`)
+    );
 
-  const userMap = {};
+  if(!snap.exists()){
+    return null;
+  }
 
-  users.forEach(u => {
-    userMap[u[0]] = u[1];
-  });
-
-  return userMap;
+  return snap.val();
 }
 function updateRateColor(){
   const el = document.getElementById("rateView");
@@ -2902,15 +2903,20 @@ async function openPlayerCard(userId){
 
   try {
 
-    const users = await getUserMap();
-    const data = users[userId];
+    const data = await getUser(userId);
+
+if(!data){
+  console.error("user not found:", userId);
+  return;
+}
 
     if(!data){
       console.error("user not found:", userId);
       return;
     }
 
-    playerCardIcon.src = data.icon || "default.png";
+   playerCardIcon.src =
+  data.icon || "/default.png";
     cardName.textContent = data.name || "Player";
 
     cardTitle.textContent = data.title || "称号なし";
