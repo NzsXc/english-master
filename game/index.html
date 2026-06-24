@@ -3475,18 +3475,6 @@ if(!localStorage.getItem("userId")){
 }
 
 console.log("Firebase接続成功");
-fbSet(
-  fbRef(rtdb, "test"),
-  {
-    message: "hello"
-  }
-)
-.then(() => {
-  console.log("書き込み成功");
-})
-.catch(err => {
-  console.error(err);
-});
 </script>
 </body>
 </html>
