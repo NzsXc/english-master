@@ -1,4 +1,4 @@
-window.words={"jp":"りんご","en":"apple","rank":1}
+window.words=[{"jp":"りんご","en":"apple","rank":1}
 {"jp":"猫","en":"cat","rank":1}
 {"jp":"犬","en":"dog","rank":1}
 {"jp":"バナナ","en":"banana","rank":1}
@@ -962,7 +962,7 @@ window.words={"jp":"りんご","en":"apple","rank":1}
 {"jp":"妨げる","en":"impede","rank":7}
 {"jp":"熱望する","en":"aspire","rank":6}
 {"jp":"連続","en":"sequence","rank":6}
-{"jp":"省略する","en":"omit","rank":5};
+{"jp":"省略する","en":"omit","rank":5}];
 console.log("開始");
 const map = new Map();
 for (const w of window.words || []) {
