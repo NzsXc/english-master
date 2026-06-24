@@ -1143,6 +1143,22 @@ window.words=[
 {jp:"連続",en:"sequence",rank:6},
 {jp:"省略する",en:"omit",rank:5},
 ];
+function removeDuplicatesByRank() {
+  const map = new Map();
+
+  for (const w of window.words) {
+    const key = w.en.toLowerCase();
+
+    if (!map.has(key) || w.rank < map.get(key).rank) {
+      map.set(key, w);
+    }
+  }
+
+  window.words = [...map.values()];
+}
+
+// データ読み込み後に呼ぶ
+removeDuplicatesByRank();
 const seen = new Set();
 const duplicates = [];
 
