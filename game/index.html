@@ -141,7 +141,10 @@ input,textarea{padding:10px;border-radius:12px;border:1px solid #ccc;width:80%}
   color:rgba(47,134,255,0.12);
   animation:flow linear forwards;
 }
-
+.font-default{
+  font-family:'Yu Gothic','Meiryo',sans-serif;
+  font-weight:700;
+}
 @keyframes flow{
   from{
     transform:translateX(0);
@@ -996,7 +999,7 @@ function getTitleClass(title){
     classes.push("redsp");
   }
   else{
-    classes.push("font-Yu Gothic");
+   classes.push("font-default");
   }
   return classes.join(" ");
 }
