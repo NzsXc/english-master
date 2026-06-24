@@ -1143,35 +1143,25 @@ window.words=[
 {jp:"連続",en:"sequence",rank:6},
 {jp:"省略する",en:"omit",rank:5},
 ];
-function removeDuplicatesByRank() {
-  const map = new Map();
-
-  for (const w of window.words) {
-    const key = w.en.toLowerCase();
-
-    if (!map.has(key) || w.rank < map.get(key).rank) {
-      map.set(key, w);
-    }
-  }
-
-  window.words = [...map.values()];
-}
-
-// ① 重複削除
-removeDuplicatesByRank();
-
-// ② 削除後の重複チェック（通常は空になる）
-const seen = new Set();
-const duplicates = [];
+const map = new Map();
 
 for (const w of window.words) {
-  const en = w.en.toLowerCase();
+  const key = w.en.toLowerCase();
 
-  if (seen.has(en)) {
-    duplicates.push(en);
-  } else {
-    seen.add(en);
+  if (!map.has(key) || w.rank < map.get(key).rank) {
+    map.set(key, w);
   }
 }
 
+const clean = [...map.values()];
+
+const blob = new Blob(
+  [JSON.stringify(clean, null, 2)],
+  { type: "application/json" }
+);
+
+const a = document.createElement("a");
+a.href = URL.createObjectURL(blob);
+a.download = "words_clean.json";
+a.click();
 console.log("重複単語（削除後）:", duplicates);
