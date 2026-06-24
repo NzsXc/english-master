@@ -973,7 +973,7 @@ window.words=[
 {"jp":"連続","en":"sequence","rank":6},
 {"jp":"省略する","en":"omit","rank":5},
  ];
-console.log("開始");
+/*console.log("開始");
 
 const map = new Map();
 
@@ -1003,4 +1003,4 @@ a.download = "words_clean.json";
 
 console.log("クリック前");
 a.click();
-console.log("クリック後");
+console.log("クリック後");*/
