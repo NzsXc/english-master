@@ -1431,6 +1431,17 @@ if(
     JSON.stringify(titles)
   );
 }
+if(
+  comment === "" &&
+  !titles.includes("くうはく")
+){
+  titles.push("くうはく");
+  alert("称号『くうはく』を獲得！");
+  localStorage.setItem(
+    "titles",
+    JSON.stringify(titles)
+  );
+}
 localStorage.setItem("sound",soundToggle.checked?"on":"off");
  const homeBgm =
     document.getElementById("homeBgm");
