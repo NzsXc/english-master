@@ -821,7 +821,7 @@ function updateRateColor(){
   if(!el) return;
 
   let rate = Number(localStorage.getItem("rate"));
-  if (isNaN(rate)) rate = 500;
+  if (isNaN(rate)) rate = 700;
 
   el.textContent = rate;
 
@@ -984,8 +984,15 @@ function getTitleClass(title){
   return "font-default";
 }
 /* ===== 既存 ===== */
-let rate=+localStorage.getItem("rate")||500;
+let rate=+localStorage.getItem("rate")||700;
 let xp=+localStorage.getItem("xp")||0;
+if (!localStorage.getItem("rateInitialized")) {
+  rate = 700;
+  localStorage.setItem("rate", 700);
+  localStorage.setItem("rateInitialized", "1");
+  await uploadRanking();
+  updateRateColor();
+}
 let locked=false,lastWord=null,current=null;
 let q=0,correct=0,pendingRate=0,pendingRankRate=0,mode="jp-en";
 let resultHistory=[];
@@ -1455,7 +1462,15 @@ localStorage.setItem("sound",soundToggle.checked?"on":"off");
   }
 updateProfile();
 
+if (!localStorage.getItem("rateInitialized")) {
+  rate = 700;
+  localStorage.setItem("rate", 700);
+  localStorage.setItem("rateInitialized", "1");
+  updateRateColor();
+}
+
 await uploadRanking();
+
 console.log(
   "保存後の名前:",
   localStorage.getItem("username")
