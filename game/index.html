@@ -987,8 +987,24 @@ function getTitleClass(title){
 let rate=+localStorage.getItem("rate")||700;
 let xp=+localStorage.getItem("xp")||0;
 if (!localStorage.getItem("rateInitialized")) {
-  rate = 700;
-  localStorage.setItem("rate", 700);
+
+  const userId = localStorage.getItem("userId");
+
+  if (userId === "u17811861773995257") {
+    rate = 900;
+  } else if (userId === "u1781325995030726") {
+    rate = 1100;
+  } else if (userId === "u17819400975168208") {
+    rate = 867;
+  } else if (userId === "u17821874227603062") {
+    rate = 1000;
+  } else if (userId === "u17823043888178842") {
+    rate = 1000;
+  } else {
+    rate = 700;
+  }
+
+  localStorage.setItem("rate", rate);
   localStorage.setItem("rateInitialized", "1");
   await uploadRanking();
   updateRateColor();
