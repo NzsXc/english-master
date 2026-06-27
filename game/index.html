@@ -811,47 +811,14 @@ margin-top:40px;
 }
   let userMap = null;
 
-async function getUser(userId){
-
-  const snap =
-    await fbGet(
-      fbRef(rtdb, `ranking/${userId}`)
-    );
-
-  if(!snap.exists()){
-    return null;
-  }
-
-  return snap.val();
-}
 function updateRateColor() {
   const el = document.getElementById("rateView");
   if (!el) return;
 
-  // rate表示
   let rate = Number(localStorage.getItem("rate"));
   if (isNaN(rate)) rate = 700;
 
   el.textContent = rate;
-
-  // ↓ここに色変更の処理があるなら続けて書く
-}
-
-window.addEventListener("load", () => {
-
-  // 初回ログインメッセージ
-  const userId = localStorage.getItem("userId");
-
-  if (userId && !localStorage.getItem("firstLogin_" + userId)) {
-    alert("ログインありがとうございます。一部プレイヤーのレートを調整しました。あなたのレートが増加している場合があります。");
-    localStorage.setItem("firstLogin_" + userId, "1");
-  } else {
-    alert("おかえりなさい！");
-  }
-
-  // レート表示更新
-  updateRateColor();
-});
 
   el.classList.remove(
     "rate-1","rate-2","rate-3","rate-4",
@@ -874,12 +841,23 @@ window.addEventListener("load", () => {
     el.classList.add("rate-7");
   } else if(rate < 1800){
     el.classList.add("rate-8");
-  } else if(rate < 2000){
+  } else {
     el.classList.add("rate-9");
-    } else {
-  el.classList.add("rate-9");
-}
   }
+}
+
+window.addEventListener("load", () => {
+  const userId = localStorage.getItem("userId");
+
+  if (userId && !localStorage.getItem("firstLogin_" + userId)) {
+    alert("ログインありがとうございます。一部プレイヤーのレートを調整しました。あなたのレートが増加している場合があります。");
+    localStorage.setItem("firstLogin_" + userId, "1");
+  } else {
+    alert("おかえりなさい！");
+  }
+
+  updateRateColor();
+});
   function showHelpText(type){
 
   const box =
