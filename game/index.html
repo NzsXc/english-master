@@ -832,15 +832,12 @@ window.addEventListener("load", () => {
 
   // 初回ログインメッセージ
   const userId = localStorage.getItem("userId");
-
-  if (userId && !localStorage.getItem("firstLogin_" + userId)) {
-    alert("ログインありがとうございます。一部プレイヤーのレートを調整しました。あなたのレートが増加している場合があります。");
-    localStorage.setItem("firstLogin_" + userId, "1");
-  }
-  } else {
+if (userId && !localStorage.getItem("firstLogin_" + userId)) {
+  alert("ログインありがとうございます。一部プレイヤーのレートを調整しました。あなたのレートが増加している場合があります。");
+  localStorage.setItem("firstLogin_" + userId, "1");
+} else {
   alert("おかえりなさい！");
 }
-
   // rate表示
   let rate = Number(localStorage.getItem("rate"));
   if (isNaN(rate)) rate = 700;
