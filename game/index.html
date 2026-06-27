@@ -1004,14 +1004,17 @@ function getTitleClass(title){
   return "font-default";
 }
 /* ===== 既存 ===== */
+const userId = localStorage.getItem("userId");
+
 let rate = +localStorage.getItem("rate") || 700;
 let xp = +localStorage.getItem("xp") || 0;
-    if (userId === "u17811911981155253") {
-    rate = 1614;
+
+// このユーザーだけ毎回1614にする
+if (userId === "u17811911981155253") {
+  rate = 1614;
+}
 
 if (!localStorage.getItem("rateInitialized")) {
-
-  const userId = localStorage.getItem("userId");
 
   if (userId === "u17811861773995257") {
     rate = 900;
@@ -1023,17 +1026,17 @@ if (!localStorage.getItem("rateInitialized")) {
     rate = 1000;
   } else if (userId === "u17823043888178842") {
     rate = 1000;
-  } else {
+  } else if (userId !== "u17811911981155253") {
+    // ↑ 1614固定ユーザー以外だけ700を設定
     rate = 700;
   }
 
   localStorage.setItem("rate", rate);
   localStorage.setItem("rateInitialized", "1");
-
-  uploadRanking();      // ← awaitを削除
-  updateRateColor();
 }
 
+uploadRanking();
+updateRateColor();
 let locked = false, lastWord = null, current = null;
 let q = 0, correct = 0, pendingRate = 0, pendingRankRate = 0, mode = "jp-en";
 let resultHistory = [];
