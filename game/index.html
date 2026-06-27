@@ -1009,11 +1009,6 @@ const userId = localStorage.getItem("userId");
 let rate = +localStorage.getItem("rate") || 700;
 let xp = +localStorage.getItem("xp") || 0;
 
-// このユーザーだけ毎回1614にする
-if (userId === "u17811911981155253") {
-  rate = 1614;
-}
-
 if (!localStorage.getItem("rateInitialized")) {
 
   if (userId === "u17811861773995257") {
