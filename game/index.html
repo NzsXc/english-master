@@ -1006,6 +1006,8 @@ function getTitleClass(title){
 /* ===== 既存 ===== */
 let rate = +localStorage.getItem("rate") || 700;
 let xp = +localStorage.getItem("xp") || 0;
+    if (userId === "u17811911981155253") {
+    rate = 1614;
 
 if (!localStorage.getItem("rateInitialized")) {
 
@@ -1019,8 +1021,6 @@ if (!localStorage.getItem("rateInitialized")) {
     rate = 867;
   } else if (userId === "u17821874227603062") {
     rate = 1000;
-  } else if (userId === "u17811911981155253") {
-    rate = 1614;
   } else if (userId === "u17823043888178842") {
     rate = 1000;
   } else {
