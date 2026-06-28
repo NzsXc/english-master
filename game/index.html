@@ -1910,6 +1910,17 @@ function getRankNameByRate(rr){
 
   return rank;
 }
+async function getUser(userId) {
+  const snapshot = await fbGet(
+    fbRef(rtdb, `ranking/${userId}`)
+  );
+
+  if (!snapshot.exists()) {
+    return null;
+  }
+
+  return snapshot.val();
+}
 const playerCardIcon =
   document.getElementById("playerCardIcon");
 async function openPlayerCard(userId){
